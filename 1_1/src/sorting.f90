@@ -31,37 +31,39 @@ contains
       character(SURNAME_LEN, kind=CH_) :: tmp_s
       character(POSITION_LEN, kind=CH_) :: tmp_p
       logical :: sorted
-      logical :: swap_needed
+      !logical :: swap_needed
       
       n = size(surnames)
       sorted = .false.
     
       do while (.not. sorted)
          sorted = .true.
-   
-         !$omp simd private(tmp_s, tmp_p) private(swap_needed)
+      
+         !четная фаза  
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
          do j = 1, n-1, 2
-            swap_needed = PositionLess(positions(j+1), positions(j), positions_rank)
-            if (swap_needed) then
-               !Меняем фамилии
+            if (PositionLess(positions(j+1), positions(j), positions_rank)) then
+               ! Обмен фамилиями
                tmp_s = surnames(j)
                surnames(j) = surnames(j+1)
                surnames(j+1) = tmp_s
                
-               !Меняем должности
+               ! Обмен должностями
                tmp_p = positions(j)
                positions(j) = positions(j+1)
                positions(j+1) = tmp_p
                
-               sorted = .false.
+               sorted = .false. 
             end if
          end do
-         !$omp end simd       
-
-         !$omp simd private(tmp_s, tmp_p) private(swap_needed)
+         !$omp end parallel do
+      
+         !нечетная фаза
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
          do j = 2, n-1, 2
-            swap_needed = PositionLess(positions(j+1), positions(j), positions_rank)
-            if (swap_needed) then
+            if (PositionLess(positions(j+1), positions(j), positions_rank)) then
+
+     
                ! Меняем фамилии
                tmp_s = surnames(j)
                surnames(j) = surnames(j+1)
@@ -75,7 +77,7 @@ contains
                sorted = .false.
             end if
          end do
-         !$omp end simd
+         !$omp end parallel do
          
       end do
       

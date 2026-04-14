@@ -19,7 +19,7 @@ contains
       open(file=input_file, newunit=In, iostat=IO, encoding=E_)
       call Handle_IO_status(IO, "opening input file")
       
-      ! Подсчёт строк 
+      !Подсчёт строк 
       n = 0
       do
          read(In, '(a)', iostat=IO)
@@ -34,23 +34,14 @@ contains
       !$omp allocate(positions) align(ALIGN)
       allocate(positions(POSITION_LEN, n))
       
-      do i = 1, n
-         do j = 1, SURNAME_LEN
-            surnames(j, i) = SPACE
-         end do
-      end do
-      
-      do i = 1, n
-         do j = 1, POSITION_LEN
-            positions(j, i) = SPACE
-         end do
-      end do
+      surnames = SPACE
+      positions = SPACE
       
       do i = 1, n
          read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-         call Handle_IO_status(IO, "reading data")
+         call Handle_IO_status(IO, "reading data, line " // i)
          
-         !Копирование символов
+          !Копирование символов
          do j = 1, len_trim(surname_str)
             surnames(j, i) = surname_str(j:j)
          end do
@@ -76,20 +67,23 @@ contains
       
       if (file_exists) then
          open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file for append")
       else
          open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file")
       end if
-      call Handle_IO_status(IO, "opening output file")
       
       if (present(title)) then
          if (file_exists) then
             write(Out, '(a)', iostat=IO) ""
+            call Handle_IO_status(IO, "writing empty line")
          end if 
          write(Out, '(a)', iostat=IO) title
+         call Handle_IO_status(IO, "writing title")
       end if
       
       do i = 1, size(surnames, 2)
-         !Сборка строки из символов
+        !Сборка строки из символов
          surname_str = REPEAT(SPACE, SURNAME_LEN)
          do j = 1, SURNAME_LEN
             if (surnames(j, i) /= SPACE) then
@@ -105,6 +99,7 @@ contains
          end do
          
          write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
+         call Handle_IO_status(IO, "writing data, line " // i)
       end do
       
       close(Out)
@@ -131,14 +126,12 @@ contains
       !$omp allocate(positions_rank) align(ALIGN)
       allocate(positions_rank(POSITION_LEN, m))
       
-      do i = 1, m
-         do j = 1, POSITION_LEN
-            positions_rank(j, i) = SPACE
-         end do
-      end do
+      positions_rank = SPACE
       
       do i = 1, m
          read(In, '(a)', iostat=IO) pos_str
+         call Handle_IO_status(IO, "reading position rank, line " // i)
+         
          pos_str = trim(pos_str)
          
          do j = 1, len_trim(pos_str)

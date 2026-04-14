@@ -22,6 +22,7 @@ contains
       do
          read(In, '(a)', iostat=IO)
          if (IO == IOSTAT_END) exit
+         call Handle_IO_status(IO, "reading input file for line counting")
          n = n + 1
       end do
       rewind(In)
@@ -30,14 +31,14 @@ contains
       allocate(surnames(n))
 
       !$omp allocate(positions) align(ALIGN)
-      allocate(positions(N))
+      allocate(positions(n))
      
-     ! print *, "      Выравнивание surnames:", mod(loc(surnames), 64)
-     ! print *, "      Выравнивание positions:", mod(loc(positions), 64) 
+      !print *, "      Выравнивание surnames:", mod(loc(surnames), 64)
+      !print *, "      Выравнивание positions:", mod(loc(positions), 64) 
       
       do i = 1, n
          read(In, '(a15, 1x, a15)', iostat=IO) surnames(i), positions(i)
-         call Handle_IO_status(IO, "reading data")
+         call Handle_IO_status(IO, "reading data, line " // i)
          surnames(i) = trim(surnames(i))
          positions(i) = trim(positions(i))
       end do
@@ -56,20 +57,24 @@ contains
       
       if (file_exists) then
          open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file for append")
       else
          open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file")
       end if
-      call Handle_IO_status(IO, "opening output file")
       
       if (present(title)) then
          if (file_exists) then
             write(Out, '(a)', iostat=IO) ""
+            call Handle_IO_status(IO, "writing empty line")
          end if 
          write(Out, '(a)', iostat=IO) title
+         call Handle_IO_status(IO, "writing title: " // title)
       end if
       
       do i = 1, size(surnames)
          write(Out, '(a15, 1x, a15)', iostat=IO) surnames(i), positions(i)
+         call Handle_IO_status(IO, "writing data, line " // i)
       end do
       
       close(Out)
@@ -88,6 +93,7 @@ contains
       do
          read(In, '(a)', iostat=IO)
          if (IO == IOSTAT_END) exit
+         call Handle_IO_status(IO, "reading positions file for line counting")
          m = m + 1
       end do
       rewind(In)
@@ -97,6 +103,7 @@ contains
       
       do i = 1, m
          read(In, '(a)', iostat=IO) positions_rank(i)
+         call Handle_IO_status(IO, "reading position rank, line " // i)
          positions_rank(i) = trim(positions_rank(i))
       end do
       

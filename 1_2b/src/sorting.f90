@@ -36,75 +36,66 @@ contains
       res = pos_a < pos_b
    end function PositionLess
    
-   ! Сортировка чёт-нечет с векторизацией
+   !Сортировка чёт-нечет
    subroutine SortEmpl(surnames, positions, positions_rank)
       character(kind=CH_), intent(inout) :: surnames(:, :), positions(:, :)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       
-      integer :: n, j
+      integer :: n, j, k
       logical :: sorted
+      character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
       
-      n = size(surnames, 2)
+      n = size(surnames, 2)  ! количество сотрудников (второй индекс)
       sorted = .false.
     
       do while (.not. sorted)
          sorted = .true.
          
-         ! Четная фаза
-         !$omp simd reduction(.and.:sorted)
+         !Четная фаза 
+         !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 1, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               block
-                  character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
-                  integer :: k
-                  
-                  ! Меняем фамилии
-                  do k = 1, SURNAME_LEN
-                     tmp_s(k) = surnames(k, j)
-                     surnames(k, j) = surnames(k, j+1)
-                     surnames(k, j+1) = tmp_s(k)
-                  end do
-                  
-                  ! Меняем должности
-                  do k = 1, POSITION_LEN
-                     tmp_p(k) = positions(k, j)
-                     positions(k, j) = positions(k, j+1)
-                     positions(k, j+1) = tmp_p(k)
-                  end do
-                  
-                  sorted = .false.
-               end block
+               !Обмен фамилиями
+               do k = 1, SURNAME_LEN
+                  tmp_s(k) = surnames(k, j)
+                  surnames(k, j) = surnames(k, j+1)
+                  surnames(k, j+1) = tmp_s(k)
+               end do
+               
+               !Обмен должностями
+               do k = 1, POSITION_LEN
+                  tmp_p(k) = positions(k, j)
+                  positions(k, j) = positions(k, j+1)
+                  positions(k, j+1) = tmp_p(k)
+               end do
+               
+               sorted = .false.
             end if
          end do
-         !$omp end simd
+         !$omp end parallel do
          
-         ! Нечетная фаза
-         !$omp simd reduction(.and.:sorted)
+         !Нечетная фаза 
+         !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 2, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               block
-                  character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
-                  integer :: k
-                  
-                  ! Меняем фамилии
-                  do k = 1, SURNAME_LEN
-                     tmp_s(k) = surnames(k, j)
-                     surnames(k, j) = surnames(k, j+1)
-                     surnames(k, j+1) = tmp_s(k)
-                  end do
-                  
-                  ! Меняем должности
-                  do k = 1, POSITION_LEN
-                     tmp_p(k) = positions(k, j)
-                     positions(k, j) = positions(k, j+1)
-                     positions(k, j+1) = tmp_p(k)
-                  end do
-                  
-                  sorted = .false.
-               end block
+               !Обмен фамилиями
+               do k = 1, SURNAME_LEN
+                  tmp_s(k) = surnames(k, j)
+                  surnames(k, j) = surnames(k, j+1)
+                  surnames(k, j+1) = tmp_s(k)
+               end do
+               
+               !Обмен должностями
+               do k = 1, POSITION_LEN
+                  tmp_p(k) = positions(k, j)
+                  positions(k, j) = positions(k, j+1)
+                  positions(k, j+1) = tmp_p(k)
+               end do
+               
+               sorted = .false.
             end if
          end do
-         !$omp end simd
+         !$omp end parallel do
          
       end do
       

@@ -24,6 +24,7 @@ contains
       do
          read(In, '(a)', iostat=IO)
          if (is_iostat_end(IO)) exit
+         call Handle_IO_status(IO, "reading input file for line counting, line " // n+1)
          n = n + 1
       end do
       rewind(In)
@@ -34,23 +35,15 @@ contains
       !$omp allocate(positions) align(ALIGN)
       allocate(positions(n, POSITION_LEN))
       
-      do i = 1, n
-         do j = 1, SURNAME_LEN
-            surnames(i, j) = SPACE
-         end do
-      end do
-      
-      do i = 1, n
-         do j = 1, POSITION_LEN
-            positions(i, j) = SPACE
-         end do
-      end do
+      ! Инициализация пробелами
+      surnames = SPACE
+      positions = SPACE
       
       do i = 1, n
          read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-         call Handle_IO_status(IO, "reading data")
+         call Handle_IO_status(IO, "reading data, line " // i)
          
-         !Копирование символов
+         ! Копирование символов
          do j = 1, len_trim(surname_str)
             surnames(i, j) = surname_str(j:j)
          end do
@@ -76,20 +69,23 @@ contains
       
       if (file_exists) then
          open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file for append")
       else
          open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
+         call Handle_IO_status(IO, "opening output file")
       end if
-      call Handle_IO_status(IO, "opening output file")
       
       if (present(title)) then
          if (file_exists) then
             write(Out, '(a)', iostat=IO) ""
+            call Handle_IO_status(IO, "writing empty line before title")
          end if 
          write(Out, '(a)', iostat=IO) title
+         call Handle_IO_status(IO, "writing title: " // title)
       end if
       
       do i = 1, size(surnames, 1)
-         !Сборка строки из символов
+         ! Сборка строки из символов
          surname_str = REPEAT(SPACE, SURNAME_LEN)
          do j = 1, SURNAME_LEN
             if (surnames(i, j) /= SPACE) then
@@ -105,6 +101,7 @@ contains
          end do
          
          write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
+         call Handle_IO_status(IO, "writing data, line " // i)
       end do
       
       close(Out)
@@ -124,6 +121,7 @@ contains
       do
          read(In, '(a)', iostat=IO)
          if (is_iostat_end(IO)) exit
+         call Handle_IO_status(IO, "reading positions file for line counting, line " // m+1)
          m = m + 1
       end do
       rewind(In)
@@ -131,14 +129,13 @@ contains
       !$omp allocate(positions_rank) align(ALIGN)
       allocate(positions_rank(m, POSITION_LEN))
       
-      do i = 1, m
-         do j = 1, POSITION_LEN
-            positions_rank(i, j) = SPACE
-         end do
-      end do
+      ! Инициализация пробелами
+      positions_rank = SPACE
       
       do i = 1, m
          read(In, '(a)', iostat=IO) pos_str
+         call Handle_IO_status(IO, "reading position rank, line " // i)
+         
          pos_str = trim(pos_str)
          
          do j = 1, len_trim(pos_str)
