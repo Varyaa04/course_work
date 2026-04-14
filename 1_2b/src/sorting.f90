@@ -9,31 +9,46 @@ contains
       character(kind=CH_), intent(in) :: a(:), b(:)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
-      integer :: i, pos_a, pos_b
-      logical :: found_a, found_b
+      integer :: pos_a, pos_b, i
+      character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
+      character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
-      pos_a = huge(1)
-      pos_b = huge(1)
-      found_a = .false.
-      found_b = .false.
+      ! Преобразуем должность a в строку
+      str_a = ""
+      do i = 1, POSITION_LEN
+         if (a(i) /= SPACE) str_a(i:i) = a(i)
+      end do
+      str_a = trim(str_a)
       
+      ! Преобразуем должность b в строку
+      str_b = ""
+      do i = 1, POSITION_LEN
+         if (b(i) /= SPACE) str_b(i:i) = b(i)
+      end do
+      str_b = trim(str_b)
+      
+      ! Преобразуем positions_rank в одномерный массив строк (по столбцам)
+      allocate(rank_strings(size(positions_rank, 2)))
       do i = 1, size(positions_rank, 2)
-         if (.not. found_a) then
-            if (CompareStrings(positions_rank(:, i), a, POSITION_LEN)) then
-               pos_a = i
-               found_a = .true.
+         rank_strings(i) = ""
+         do pos_a = 1, POSITION_LEN  ! используем pos_a как временный индекс
+            if (positions_rank(pos_a, i) /= SPACE) then
+               rank_strings(i)(pos_a:pos_a) = positions_rank(pos_a, i)
             end if
-         end if
-         if (.not. found_b) then
-            if (CompareStrings(positions_rank(:, i), b, POSITION_LEN)) then
-               pos_b = i
-               found_b = .true.
-            end if
-         end if
-         if (found_a .and. found_b) exit
+         end do
+         rank_strings(i) = trim(rank_strings(i))
       end do
       
-      res = pos_a < pos_b
+      ! Используем findloc для поиска индексов
+      pos_a = findloc(rank_strings, str_a, dim=1)
+      pos_b = findloc(rank_strings, str_b, dim=1)
+      
+      ! Если не найдено, возвращаем false
+      if (pos_a == 0 .or. pos_b == 0) then
+         res = .false.
+      else
+         res = pos_a < pos_b
+      end if
    end function PositionLess
    
    !Сортировка чёт-нечет
