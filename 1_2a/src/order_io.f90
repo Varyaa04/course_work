@@ -35,7 +35,6 @@ contains
       !$omp allocate(positions) align(ALIGN)
       allocate(positions(n, POSITION_LEN))
       
-      ! Инициализация пробелами
       surnames = SPACE
       positions = SPACE
       
@@ -43,7 +42,6 @@ contains
          read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
          call Handle_IO_status(IO, "reading data, line " // i)
          
-         ! Копирование символов
          do j = 1, len_trim(surname_str)
             surnames(i, j) = surname_str(j:j)
          end do
@@ -85,7 +83,6 @@ contains
       end if
       
       do i = 1, size(surnames, 1)
-         ! Сборка строки из символов
          surname_str = REPEAT(SPACE, SURNAME_LEN)
          do j = 1, SURNAME_LEN
             if (surnames(i, j) /= SPACE) then
@@ -129,7 +126,6 @@ contains
       !$omp allocate(positions_rank) align(ALIGN)
       allocate(positions_rank(m, POSITION_LEN))
       
-      ! Инициализация пробелами
       positions_rank = SPACE
       
       do i = 1, m
@@ -146,20 +142,5 @@ contains
       close(In)
    end subroutine ReadPositions
    
-   !Функция сравнения строк в двумерных массивах
-   pure function CompareStrings(a, b, len) result(is_equal)
-      character(kind=CH_), intent(in) :: a(:), b(:)
-      integer, intent(in) :: len
-      logical :: is_equal
-      integer :: i
-      
-      is_equal = .true.
-      do i = 1, len
-         if (a(i) /= b(i)) then
-            is_equal = .false.
-            return
-         end if
-      end do
-   end function CompareStrings
-   
+  
 end module Order_io

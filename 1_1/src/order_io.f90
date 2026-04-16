@@ -3,111 +3,130 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: ALIGN = 64
-   
+   integer, parameter :: EMPL_AMOUNT = 12   
+   integer, parameter :: POS_AMOUNT = 5     
 contains
-   
-    subroutine ReadEmpl(input_file, surnames, positions, n)
+
+   !чтение сотрудников 
+   subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
       character(SURNAME_LEN, kind=CH_), allocatable, intent(out) :: surnames(:)
       character(POSITION_LEN, kind=CH_), allocatable, intent(out) :: positions(:)
-      integer, intent(out) :: n
-      integer :: In, IO, i
-      
-      open(file=input_file, newunit=In, iostat=IO, encoding=E_)
-      call Handle_IO_status(IO, "opening input file")
-      
-      ! Подсчёт строк 
-      n = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (IO == IOSTAT_END) exit
-         call Handle_IO_status(IO, "reading input file for line counting")
-         n = n + 1
-      end do
-      rewind(In)
-     
-      !$omp allocate(surnames) align(ALIGN)
-      allocate(surnames(n))
+      integer :: In, Out, IO, i
+      character(:), allocatable :: format
 
-      !$omp allocate(positions) align(ALIGN)
-      allocate(positions(n))
-     
-      !print *, "      Выравнивание surnames:", mod(loc(surnames), 64)
-      !print *, "      Выравнивание positions:", mod(loc(positions), 64) 
-      
-      do i = 1, n
-         read(In, '(a15, 1x, a15)', iostat=IO) surnames(i), positions(i)
-         call Handle_IO_status(IO, "reading data, line " // i)
-         surnames(i) = trim(surnames(i))
-         positions(i) = trim(positions(i))
-      end do
-      
+      allocate(surnames(EMPL_AMOUNT))   
+      allocate(positions(EMPL_AMOUNT))
+
+      format = '(a15, 1x, a15)'
+
+      !format = '(' // SURNAME_LEN // ', 1x,' //POSITION_LEN // ')'
+
+      open (file=input_file, encoding=E_, newunit=In)
+         read(In, format, iostat=IO) (surnames(i), positions(i), i = 1, EMPL_AMOUNT)  
       close(In)
+
+      !обработка ошибок 
+      Out = OUTPUT_UNIT
+      open (Out, encoding=E_)
+      select case(IO)
+         case(0)
+         case(IOSTAT_END)
+            write (Out, '(a)') "End of file has been reached while reading employees."
+         case(1:)
+            write (Out, '(a, i0)') "Error while reading employees: ", IO
+         case default
+            write (Out, '(a, i0)') "Undetermined error while reading employees: ", IO
+      end select
+
+      if (IO /= 0) stop
+
    end subroutine ReadEmpl
-   
+
+   !чтение должностей 
+   subroutine ReadPositions(positions_file, positions_rank)
+      character(*), intent(in) :: positions_file
+      character(POSITION_LEN, kind=CH_), allocatable, intent(out) :: positions_rank(:)
+      integer :: In, Out, IO, i
+      character(:), allocatable :: format
+
+      allocate(positions_rank(POS_AMOUNT))  
+
+      open (file=positions_file, encoding=E_, newunit=In)
+         read(In, '(a)', iostat=IO) (positions_rank(i), i = 1, POS_AMOUNT)  
+      close(In)
+
+      !обработка ошибок
+      Out = OUTPUT_UNIT
+      open (Out, encoding=E_)
+      select case(IO)
+         case(0)
+         case(IOSTAT_END)
+            write (Out, '(a)') "End of file has been reached while reading positions."
+         case(1:)
+            write (Out, '(a, i0)') "Error while reading positions: ", IO
+         case default
+            write (Out, '(a, i0)') "Undetermined error while reading positions: ", IO
+      end select
+
+      if (IO /= 0) stop
+
+   end subroutine ReadPositions
+
+   !запись сотрудников
    subroutine WriteEmpl(output_file, surnames, positions, title)
       character(*), intent(in) :: output_file
       character(SURNAME_LEN, kind=CH_), intent(in) :: surnames(:), positions(:)
       character(*), intent(in), optional :: title
       integer :: Out, IO, i
+      character(:), allocatable :: format
       logical :: file_exists
-      
+
       inquire(file=output_file, exist=file_exists)
-      
+
       if (file_exists) then
-         open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
-         call Handle_IO_status(IO, "opening output file for append")
+         open(file=output_file, encoding=E_, position='append', newunit=Out, iostat=IO)
       else
-         open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
-         call Handle_IO_status(IO, "opening output file")
+         open(file=output_file, encoding=E_, newunit=Out, iostat=IO)
       end if
-      
+
+      if (IO /= 0) then
+         Out = OUTPUT_UNIT
+         open (Out, encoding=E_)
+         write (Out, '(a, i0)') "Error opening output file: ", IO
+         stop
+      end if
+
+      format = '(a15, 1x, a15)'
+
+
+
       if (present(title)) then
          if (file_exists) then
             write(Out, '(a)', iostat=IO) ""
-            call Handle_IO_status(IO, "writing empty line")
-         end if 
+         end if
          write(Out, '(a)', iostat=IO) title
-         call Handle_IO_status(IO, "writing title: " // title)
       end if
-      
-      do i = 1, size(surnames)
-         write(Out, '(a15, 1x, a15)', iostat=IO) surnames(i), positions(i)
-         call Handle_IO_status(IO, "writing data, line " // i)
-      end do
-      
+
+      write(Out, format, iostat=IO) (surnames(i), positions(i), i = 1, size(surnames))
+
       close(Out)
+
+      ! Обработка статуса записи
+      Out = OUTPUT_UNIT
+      open (Out, encoding=E_)
+      select case(IO)
+         case(0)
+         case(IOSTAT_END)
+            write (Out, '(a)') "End of file has been reached while writing employees."
+         case(1:)
+            write (Out, '(a, i0)') "Error while writing employees: ", IO
+         case default
+            write (Out, '(a, i0)') "Undetermined error while writing employees: ", IO
+      end select
+
+      if (IO /= 0) stop
+
    end subroutine WriteEmpl
-   
-  subroutine ReadPositions(positions_file, positions_rank, m)
-      character(*), intent(in) :: positions_file
-      character(POSITION_LEN, kind=CH_), allocatable, intent(out) :: positions_rank(:)
-      integer, intent(out) :: m
-      integer :: In, IO, i
-      
-      open(file=positions_file, newunit=In, iostat=IO, encoding=E_)
-      call Handle_IO_status(IO, "opening positions file")
-      
-      m = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (IO == IOSTAT_END) exit
-         call Handle_IO_status(IO, "reading positions file for line counting")
-         m = m + 1
-      end do
-      rewind(In)
-      
-      !$omp allocate(positions_rank) align(ALIGN)
-      allocate(positions_rank(m))
-      
-      do i = 1, m
-         read(In, '(a)', iostat=IO) positions_rank(i)
-         call Handle_IO_status(IO, "reading position rank, line " // i)
-         positions_rank(i) = trim(positions_rank(i))
-      end do
-      
-      close(In)
-   end subroutine ReadPositions
-   
+
 end module Order_io
