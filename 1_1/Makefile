@@ -10,7 +10,7 @@ all:
 	$(FC) $(FFLAGS) $(FOPT) -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o
 
 clean:
-	rm -rf obj/* bin/*
+	rm -rf obj/* bin/* output.txt
 
 run:
 	cd ./bin && ./app

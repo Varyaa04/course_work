@@ -2,25 +2,40 @@ module Sorting
    use Order_io
    use Environment
    implicit none
-   
+
 contains
-  
    pure function PositionLess(a, b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: a, b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical :: res
       integer :: ra, rb
-      
-      ra = findloc(positions_rank, trim(a), dim=1)
-      rb = findloc(positions_rank, trim(b), dim=1)
-      
-      if (ra == 0 .or. rb == 0) then
+      integer :: i
+      character(POSITION_LEN) :: a_trim, b_trim, rank_trim
+   
+      a_trim = trim(adjustl(a))
+      b_trim = trim(adjustl(b))
+   !!!!!!FINDLOC!!!!!
+      ra = 0
+      rb = 0
+   
+      do i = 1, size(positions_rank)
+         rank_trim = trim(adjustl(positions_rank(i)))
+         if (rank_trim == a_trim) ra = i
+            if (rank_trim == b_trim) rb = i
+      end do
+
+      if (ra == 0 .and. rb == 0) then
+         res = .false.
+      else if (ra == 0) then
+         res = .true.   
+      else if (rb == 0) then
          res = .false.
       else
          res = ra < rb
       end if
-   end function PositionLess
-   
+
+   end function PositionLess 
+
    !Cортировка чёт-нечет
    subroutine SortEmpl(surnames, positions, positions_rank)
       character(SURNAME_LEN, kind=CH_), intent(inout) :: surnames(:)

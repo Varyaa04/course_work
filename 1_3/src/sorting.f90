@@ -4,38 +4,60 @@ module Sorting
    implicit none
    
 contains
-   !cортировка списка сотрудников по рангу должности
+   
+   !сортировка чёт-нечет
    pure subroutine Sort_employee_list(employees, positions_rank)
       type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
-      integer :: i, j
-      type(employee) :: tmp_emp
+      integer :: n, j
+      type(employee) :: tmp
+      logical :: sorted
       
-      !cортировка чёт-нечет
-      do i = size(employees), 2, -1
-         do j = 1, i-1
-            if (Need_swap(employees, j, positions_rank)) then
-               tmp_emp = employees(j+1)
-               employees(j+1) = employees(j)
-               employees(j) = tmp_emp
+      n = size(employees)
+      sorted = .false.
+      
+      do while (.not. sorted)
+         sorted = .true.
+         
+         !чётная фаза
+         do j = 1, n-1, 2
+            if (Need_swap(employees(j), employees(j+1), positions_rank)) then
+               !обмен
+               tmp = employees(j)
+               employees(j) = employees(j+1)
+               employees(j+1) = tmp
+               sorted = .false.
             end if
          end do
+         
+         !нечётная фаза 
+         do j = 2, n-1, 2
+            if (Need_swap(employees(j), employees(j+1), positions_rank)) then
+               !обмен
+               tmp = employees(j)
+               employees(j) = employees(j+1)
+               employees(j+1) = tmp
+               sorted = .false.
+            end if
+         end do
+         
       end do
+      
    end subroutine Sort_employee_list
    
    !проверка, нужно ли менять местами сотрудников
-   pure logical function Need_swap(employees, j, positions_rank)
-      type(employee), intent(in) :: employees(:)
-      integer, intent(in) :: j
+   pure logical function Need_swap(emp1, emp2, positions_rank)
+      type(employee), intent(in) :: emp1, emp2
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
-      integer :: rank_j, rank_j1
+      integer :: rank1, rank2
       
-      rank_j  = findloc(positions_rank, trim(employees(j)%position), dim=1)
-      rank_j1 = findloc(positions_rank, trim(employees(j+1)%position), dim=1)
+      rank1 = findloc(positions_rank, trim(emp1%position), dim=1)
+      rank2 = findloc(positions_rank, trim(emp2%position), dim=1)
       
-      Need_swap = rank_j > rank_j1
+      !меняем, если ранг первого больше ранга второго 
+      Need_swap = rank1 > rank2
    end function Need_swap
    
 end module Sorting

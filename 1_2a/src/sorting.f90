@@ -13,25 +13,22 @@ contains
       character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
       character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
-      ! Преобразуем должность a в строку
       str_a = ""
       do i = 1, POSITION_LEN
          if (a(i) /= SPACE) str_a(i:i) = a(i)
       end do
       str_a = trim(str_a)
       
-      ! Преобразуем должность b в строку
       str_b = ""
       do i = 1, POSITION_LEN
          if (b(i) /= SPACE) str_b(i:i) = b(i)
       end do
       str_b = trim(str_b)
       
-      ! Преобразуем positions_rank в одномерный массив строк
       allocate(rank_strings(size(positions_rank, 1)))
       do i = 1, size(positions_rank, 1)
          rank_strings(i) = ""
-         do pos_a = 1, POSITION_LEN  ! используем pos_a как временный индекс
+         do pos_a = 1, POSITION_LEN  
             if (positions_rank(i, pos_a) /= SPACE) then
                rank_strings(i)(pos_a:pos_a) = positions_rank(i, pos_a)
             end if
@@ -39,11 +36,9 @@ contains
          rank_strings(i) = trim(rank_strings(i))
       end do
       
-      ! Используем findloc для поиска индексов
       pos_a = findloc(rank_strings, str_a, dim=1)
       pos_b = findloc(rank_strings, str_b, dim=1)
       
-      ! Если не найдено, возвращаем false
       if (pos_a == 0 .or. pos_b == 0) then
          res = .false.
       else
