@@ -1,0 +1,15 @@
+# Compiled files
+*.o
+*.mod
+*.exe
+bin/
+obj/
+*.app
+
+# Output files
+*.txt
+!README.txt
+
+# Temporary files
+*.tmp
+*.swp
