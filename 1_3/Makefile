@@ -2,9 +2,9 @@ FC=flang
 FFLAGS=-fimplicit-none -fopenmp
 FOPT=-O3
 
-OMP_ROOT=/opt/homebrew/opt/libomp
-OMP_LIB=-L$(OMP_ROOT)/lib -lomp
-OMP_INC=-I$(OMP_ROOT)/include
+OMP_ROOT = /usr/lib/llvm-19
+OMP_LIB = -L$(OMP_ROOT)/lib -lomp
+OMP_INC = -I$(OMP_ROOT)/include
 
 all: obj bin
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/environment.f90 -J obj/ -o obj/environment.o

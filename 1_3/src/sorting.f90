@@ -4,24 +4,23 @@ module Sorting
    implicit none
    
 contains
-   ! Функция сравнения должностей через findloc
-   pure function PositionLess(pos1, pos2, positions_rank) result(res)
-      character(POSITION_LEN, kind=CH_), intent(in) :: pos1, pos2
+   !сравнение должностей
+   pure logical function NeedSwap(empl1, empl2, positions_rank)
+      type(employee), intent(in) :: empl1, empl2
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      logical :: res
       integer :: rank1, rank2
       
-      rank1 = findloc(positions_rank, trim(pos1), dim=1)
-      rank2 = findloc(positions_rank, trim(pos2), dim=1)
+      rank1 = findloc(positions_rank, trim(empl1%position), dim=1)
+      rank2 = findloc(positions_rank, trim(empl2%position), dim=1)
       
       if (rank1 == 0 .or. rank2 == 0) then
-         res = .false.
+         NeedSwap = .false.
       else
-         res = rank1 > rank2  ! Меняем, если ранг первого больше
+         NeedSwap = rank1 > rank2
       end if
-   end function PositionLess
+   end function NeedSwap
    
-   !сортировка чёт-нечет 
+   !сортировка чет-нечет
    pure subroutine SortEmpl(employees, positions_rank)
       type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -38,8 +37,7 @@ contains
          
          !четная фаза
          do j = 1, n-1, 2
-            if (PositionLess(employees(j)%position, employees(j+1)%position, positions_rank)) then
-               !обмен местами
+            if (NeedSwap(employees(j), employees(j+1), positions_rank)) then
                tmp = employees(j)
                employees(j) = employees(j+1)
                employees(j+1) = tmp
@@ -47,10 +45,9 @@ contains
             end if
          end do
          
-         !нечётная фаза
+         !нечет фаза
          do j = 2, n-1, 2
-            if (PositionLess(employees(j)%position, employees(j+1)%position, positions_rank)) then
-               !обмен местами
+            if (NeedSwap(employees(j), employees(j+1), positions_rank)) then
                tmp = employees(j)
                employees(j) = employees(j+1)
                employees(j+1) = tmp

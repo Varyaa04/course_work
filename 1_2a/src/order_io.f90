@@ -12,7 +12,7 @@ contains
    subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
       character(kind=CH_), intent(out) :: surnames(:, :), positions(:, :)
-      integer :: In, IO, i
+      integer :: In, IO, i, j
       character(SURNAME_LEN, kind=CH_) :: surname_str
       character(POSITION_LEN, kind=CH_) :: position_str
 
@@ -20,8 +20,12 @@ contains
          do i = 1, EMPL_AMOUNT
             read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
             call Handle_IO_status(IO, "reading employees")
-            surnames(i, :) = transfer(surname_str, surnames(i, :))
-            positions(i, :) = transfer(position_str, positions(i, :))
+            do j = 1, SURNAME_LEN
+               surnames(i, j) = surname_str(j:j)
+            end do
+            do j = 1, POSITION_LEN
+               positions(i, j) = position_str(j:j)
+            end do
          end do
       close(In)
    end subroutine ReadEmpl
@@ -30,14 +34,16 @@ contains
    subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(kind=CH_), intent(out) :: positions_rank(:, :)
-      integer :: In, IO, i
+      integer :: In, IO, i, j
       character(POSITION_LEN, kind=CH_) :: pos_str
 
       open (file=positions_file, encoding=E_, newunit=In)
          do i = 1, POS_AMOUNT
             read(In, '(a)', iostat=IO) pos_str
             call Handle_IO_status(IO, "reading positions")
-            positions_rank(i, :) = transfer(pos_str, positions_rank(i, :))
+            do j = 1, POSITION_LEN
+               positions_rank(i, j) = pos_str(j:j)
+            end do
          end do
       close(In)
    end subroutine ReadPositions
@@ -48,7 +54,7 @@ contains
       character(kind=CH_), intent(in) :: surnames(:, :), positions(:, :)
       character(*), intent(in) :: title
       character(*), intent(in) :: mode  
-      integer :: Out, IO, i
+      integer :: Out, IO, i, j
       character(SURNAME_LEN, kind=CH_) :: surname_str
       character(POSITION_LEN, kind=CH_) :: position_str
 
@@ -68,8 +74,14 @@ contains
       call Handle_IO_status(IO, "writing " // title)
       
       do i = 1, EMPL_AMOUNT
-         surname_str = transfer(surnames(i, :), surname_str)
-         position_str = transfer(positions(i, :), position_str)
+         surname_str = ""
+         do j = 1, SURNAME_LEN
+            surname_str(j:j) = surnames(i, j)
+         end do
+         position_str = ""
+         do j = 1, POSITION_LEN
+            position_str(j:j) = positions(i, j)
+         end do
          write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
          call Handle_IO_status(IO, "writing employees")
       end do

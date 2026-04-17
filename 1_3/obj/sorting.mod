@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:a6499c4fd7fa93a6
-!need$ 36b8781d0e07832a n order_io
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:63cac4307d9afec0
+!need$ ad6d941a993102bd n order_io
+!need$ ddac13f897d5fcb3 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -105,11 +105,11 @@ use order_io,only:readempl
 use order_io,only:writeempl
 use order_io,only:readpositions
 contains
-pure function positionless(pos1,pos2,positions_rank) result(res)
-character(15_4,4),intent(in)::pos1
-character(15_4,4),intent(in)::pos2
+pure function needswap(empl1,empl2,positions_rank)
+type(employee),intent(in)::empl1
+type(employee),intent(in)::empl2
 character(15_4,4),intent(in)::positions_rank(:)
-logical(4)::res
+logical(4)::needswap
 end
 pure subroutine sortempl(employees,positions_rank)
 type(employee),intent(inout)::employees(:)

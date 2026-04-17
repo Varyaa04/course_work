@@ -4,15 +4,14 @@ module Sorting
    implicit none
    
 contains
-
-   !сравнение должностей 
+  
    pure function PositionLess(a, b, positions_rank) result(res)
       character(kind=CH_), intent(in) :: a(:), b(:)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
       integer :: pos_a, pos_b, i
-      character(POSITION_LEN, kind=CH_) :: str_a, str_b
-      character(POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
+      character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
+      character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
       !преобразование массива символов в строку
       str_a = ""
@@ -55,13 +54,13 @@ contains
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
       
-      n = size(surnames, 1)
+      n = size(surnames, 1)  
       sorted = .false.
-      
+    
       do while (.not. sorted)
          sorted = .true.
          
-         !чётная фаза
+         ! Чётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 1, n-1, 2
             if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
@@ -84,7 +83,7 @@ contains
          end do
          !$omp end parallel do
          
-         !нечётная фаза
+         !нечётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 2, n-1, 2
             if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
@@ -107,6 +106,7 @@ contains
          end do
          !$omp end parallel do
       end do
+      
    end subroutine SortEmpl
    
 end module Sorting
