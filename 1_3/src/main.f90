@@ -18,29 +18,24 @@ program main
    
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
    
-   !cоздание неформатированного файла из текстового
-   call Create_data_file(input_file, data_file, n)
+   !cоздание неформатированного файла
+   call CreateFile(input_file, data_file, n)
    print *, "      Прочитано сотрудников: ", n
    
-   !чтение ранга должностей
-   call Read_positions("../data/positions.txt", positions_rank)
+   call ReadPositions("../data/positions.txt", positions_rank)
    print *, "      Прочитано должностей: ", size(positions_rank)
    print *, ""
    
-   !чтение списка сотрудников из неформатированного файла
-   employees = Read_employee_list(data_file, n)
+   employees = ReadEmpl(data_file, n)
    
-   !вывод исходного списка
-   call Output_employee_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
+   call WriteEmpl(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
    
-   !сортировка
    start_time = omp_get_wtime()
-   call Sort_employee_list(employees, positions_rank)
+   call SortEmpl(employees, positions_rank)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
    
-   !вывод отсортированного списка
-   call Output_employee_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
+   call WriteEmpl(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
    
 end program main
