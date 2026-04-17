@@ -21,10 +21,10 @@ contains
             read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
             call Handle_IO_status(IO, "reading employees")
             do j = 1, SURNAME_LEN
-               surnames(i, j) = surname_str(j:j)
+               surnames(j, i) = surname_str(j:j)  
             end do
             do j = 1, POSITION_LEN
-               positions(i, j) = position_str(j:j)
+               positions(j, i) = position_str(j:j)
             end do
          end do
       close(In)
@@ -42,7 +42,7 @@ contains
             read(In, '(a)', iostat=IO) pos_str
             call Handle_IO_status(IO, "reading positions")
             do j = 1, POSITION_LEN
-               positions_rank(i, j) = pos_str(j:j)
+               positions_rank(j, i) = pos_str(j:j)
             end do
          end do
       close(In)
@@ -76,11 +76,11 @@ contains
       do i = 1, EMPL_AMOUNT
          surname_str = ""
          do j = 1, SURNAME_LEN
-            surname_str(j:j) = surnames(i, j)
+            surname_str(j:j) = surnames(j, i)    
          end do
          position_str = ""
          do j = 1, POSITION_LEN
-            position_str(j:j) = positions(i, j)
+            position_str(j:j) = positions(j, i)
          end do
          write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
          call Handle_IO_status(IO, "writing employees")

@@ -5,9 +5,9 @@ program main
    use omp_lib
    implicit none
 
-   character(kind=CH_) :: surnames(EMPL_AMOUNT, SURNAME_LEN)
-   character(kind=CH_) :: positions(EMPL_AMOUNT, POSITION_LEN)
-   character(kind=CH_) :: positions_rank(POS_AMOUNT, POSITION_LEN)
+   character(kind=CH_) :: surnames(SURNAME_LEN, EMPL_AMOUNT)       
+   character(kind=CH_) :: positions(POSITION_LEN, EMPL_AMOUNT)    
+   character(kind=CH_) :: positions_rank(POSITION_LEN, POS_AMOUNT)
    character(:), allocatable :: input_file, output_file, pos_file
    real(8) :: start_time, end_time
    
