@@ -13,25 +13,24 @@ contains
       character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
       character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
+      !преобразование массива символов в строку
       str_a = ""
       do i = 1, POSITION_LEN
-         if (a(i) /= SPACE) str_a(i:i) = a(i)
+         str_a(i:i) = a(i)
       end do
       str_a = trim(str_a)
       
       str_b = ""
       do i = 1, POSITION_LEN
-         if (b(i) /= SPACE) str_b(i:i) = b(i)
+         str_b(i:i) = b(i)
       end do
       str_b = trim(str_b)
       
-      allocate(rank_strings(size(positions_rank, 2)))
-      do i = 1, size(positions_rank, 2)
+      allocate(rank_strings(POS_AMOUNT))
+      do i = 1, POS_AMOUNT
          rank_strings(i) = ""
-         do pos_a = 1, POSITION_LEN  
-            if (positions_rank(pos_a, i) /= SPACE) then
-               rank_strings(i)(pos_a:pos_a) = positions_rank(pos_a, i)
-            end if
+         do pos_a = 1, POSITION_LEN
+            rank_strings(i)(pos_a:pos_a) = positions_rank(i, pos_a)
          end do
          rank_strings(i) = trim(rank_strings(i))
       end do
@@ -46,7 +45,7 @@ contains
       end if
    end function PositionLess
    
-   !Сортировка чёт-нечет
+   !cортировка чёт-нечет
    subroutine SortEmpl(surnames, positions, positions_rank)
       character(kind=CH_), intent(inout) :: surnames(:, :), positions(:, :)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
@@ -55,28 +54,28 @@ contains
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
       
-      n = size(surnames, 2)  ! количество сотрудников (второй индекс)
+      n = size(surnames, 1)  
       sorted = .false.
     
       do while (.not. sorted)
          sorted = .true.
          
-         !Четная фаза 
+         ! Чётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 1, n-1, 2
-            if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               !Обмен фамилиями
+            if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
+               !обмен фамилиями
                do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(k, j)
-                  surnames(k, j) = surnames(k, j+1)
-                  surnames(k, j+1) = tmp_s(k)
+                  tmp_s(k) = surnames(j, k)
+                  surnames(j, k) = surnames(j+1, k)
+                  surnames(j+1, k) = tmp_s(k)
                end do
                
-               !Обмен должностями
+               !обмен должностями
                do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(k, j)
-                  positions(k, j) = positions(k, j+1)
-                  positions(k, j+1) = tmp_p(k)
+                  tmp_p(k) = positions(j, k)
+                  positions(j, k) = positions(j+1, k)
+                  positions(j+1, k) = tmp_p(k)
                end do
                
                sorted = .false.
@@ -84,29 +83,28 @@ contains
          end do
          !$omp end parallel do
          
-         !Нечетная фаза 
+         !нечётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 2, n-1, 2
-            if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               !Обмен фамилиями
+            if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
+               !обмен фамилиями
                do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(k, j)
-                  surnames(k, j) = surnames(k, j+1)
-                  surnames(k, j+1) = tmp_s(k)
+                  tmp_s(k) = surnames(j, k)
+                  surnames(j, k) = surnames(j+1, k)
+                  surnames(j+1, k) = tmp_s(k)
                end do
                
-               !Обмен должностями
+               !обмен должностями
                do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(k, j)
-                  positions(k, j) = positions(k, j+1)
-                  positions(k, j+1) = tmp_p(k)
+                  tmp_p(k) = positions(j, k)
+                  positions(j, k) = positions(j+1, k)
+                  positions(j+1, k) = tmp_p(k)
                end do
                
                sorted = .false.
             end if
          end do
          !$omp end parallel do
-         
       end do
       
    end subroutine SortEmpl

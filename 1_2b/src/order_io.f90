@@ -3,141 +3,90 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: ALIGN = 64
-   character(kind=CH_, len=1), parameter :: SPACE = ' '
+   integer, parameter :: EMPL_AMOUNT = 12   
+   integer, parameter :: POS_AMOUNT = 5     
    
 contains
-   
-   subroutine ReadEmpl(input_file, surnames, positions, n)
+
+   !чтение сотрудников 
+   subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
-      character(kind=CH_), allocatable, intent(out) :: surnames(:, :), positions(:, :)
-      integer, intent(out) :: n
+      character(kind=CH_), intent(out) :: surnames(:, :), positions(:, :)
       integer :: In, IO, i, j
-      character(len=SURNAME_LEN, kind=CH_) :: surname_str
-      character(len=POSITION_LEN, kind=CH_) :: position_str
-      
-      open(file=input_file, newunit=In, iostat=IO, encoding=E_)
-      call Handle_IO_status(IO, "opening input file")
-      
-      n = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (is_iostat_end(IO)) exit
-         n = n + 1
-      end do
-      rewind(In)
-     
-      !$omp allocate(surnames) align(ALIGN)
-      allocate(surnames(SURNAME_LEN, n))
-      
-      !$omp allocate(positions) align(ALIGN)
-      allocate(positions(POSITION_LEN, n))
-      
-      surnames = SPACE
-      positions = SPACE
-      
-      do i = 1, n
-         read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-         call Handle_IO_status(IO, "reading data, line " // i)
-         
-         do j = 1, len_trim(surname_str)
-            surnames(j, i) = surname_str(j:j)
+      character(SURNAME_LEN, kind=CH_) :: surname_str
+      character(POSITION_LEN, kind=CH_) :: position_str
+
+      open (file=input_file, encoding=E_, newunit=In)
+         do i = 1, EMPL_AMOUNT
+            read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
+            call Handle_IO_status(IO, "reading employees")
+            do j = 1, SURNAME_LEN
+               surnames(i, j) = surname_str(j:j)
+            end do
+            do j = 1, POSITION_LEN
+               positions(i, j) = position_str(j:j)
+            end do
          end do
-         
-         do j = 1, len_trim(position_str)
-            positions(j, i) = position_str(j:j)
-         end do
-      end do
-      
       close(In)
    end subroutine ReadEmpl
-   
-   subroutine WriteEmpl(output_file, surnames, positions, title)
-      character(*), intent(in) :: output_file
-      character(kind=CH_), intent(in) :: surnames(:, :), positions(:, :)
-      character(*), intent(in), optional :: title
-      integer :: Out, IO, i, j
-      logical :: file_exists
-      character(len=SURNAME_LEN, kind=CH_) :: surname_str
-      character(len=POSITION_LEN, kind=CH_) :: position_str
-      
-      inquire(file=output_file, exist=file_exists)
-      
-      if (file_exists) then
-         open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
-         call Handle_IO_status(IO, "opening output file for append")
-      else
-         open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
-         call Handle_IO_status(IO, "opening output file")
-      end if
-      
-      if (present(title)) then
-         if (file_exists) then
-            write(Out, '(a)', iostat=IO) ""
-            call Handle_IO_status(IO, "writing empty line")
-         end if 
-         write(Out, '(a)', iostat=IO) title
-         call Handle_IO_status(IO, "writing title")
-      end if
-      
-      do i = 1, size(surnames, 2)
-         surname_str = REPEAT(SPACE, SURNAME_LEN)
-         do j = 1, SURNAME_LEN
-            if (surnames(j, i) /= SPACE) then
-               surname_str(j:j) = surnames(j, i)
-            end if
-         end do
-         
-         position_str = REPEAT(SPACE, POSITION_LEN)
-         do j = 1, POSITION_LEN
-            if (positions(j, i) /= SPACE) then
-               position_str(j:j) = positions(j, i)
-            end if
-         end do
-         
-         write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-         call Handle_IO_status(IO, "writing data, line " // i)
-      end do
-      
-      close(Out)
-   end subroutine WriteEmpl
-   
-   subroutine ReadPositions(positions_file, positions_rank, m)
+
+   !чтение должностей 
+   subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
-      character(kind=CH_), allocatable, intent(out) :: positions_rank(:, :)
-      integer, intent(out) :: m
+      character(kind=CH_), intent(out) :: positions_rank(:, :)
       integer :: In, IO, i, j
-      character(len=POSITION_LEN, kind=CH_) :: pos_str
-      
-      open(file=positions_file, newunit=In, iostat=IO, encoding=E_)
-      call Handle_IO_status(IO, "opening positions file")
-      
-      m = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (is_iostat_end(IO)) exit
-         m = m + 1
-      end do
-      rewind(In)
-      
-      !$omp allocate(positions_rank) align(ALIGN)
-      allocate(positions_rank(POSITION_LEN, m))
-      
-      positions_rank = SPACE
-      
-      do i = 1, m
-         read(In, '(a)', iostat=IO) pos_str
-         call Handle_IO_status(IO, "reading position rank, line " // i)
-         
-         pos_str = trim(pos_str)
-         
-         do j = 1, len_trim(pos_str)
-            positions_rank(j, i) = pos_str(j:j)
+      character(POSITION_LEN, kind=CH_) :: pos_str
+
+      open (file=positions_file, encoding=E_, newunit=In)
+         do i = 1, POS_AMOUNT
+            read(In, '(a)', iostat=IO) pos_str
+            call Handle_IO_status(IO, "reading positions")
+            do j = 1, POSITION_LEN
+               positions_rank(i, j) = pos_str(j:j)
+            end do
          end do
-      end do
-      
       close(In)
    end subroutine ReadPositions
-   
-  
+
+   !запись сотрудников 
+   subroutine WriteEmpl(output_file, surnames, positions, title, mode)
+      character(*), intent(in) :: output_file
+      character(kind=CH_), intent(in) :: surnames(:, :), positions(:, :)
+      character(*), intent(in) :: title
+      character(*), intent(in) :: mode  
+      integer :: Out, IO, i, j
+      character(SURNAME_LEN, kind=CH_) :: surname_str
+      character(POSITION_LEN, kind=CH_) :: position_str
+
+      if (mode == "rewind") then
+         open(file=output_file, newunit=Out, iostat=IO, status='replace')
+      else
+         open(file=output_file, position='append', newunit=Out, iostat=IO)
+      end if
+      call Handle_IO_status(IO, "opening output file")
+
+      if (mode == "append") then
+         write(Out, '(a)', iostat=IO) ''
+         call Handle_IO_status(IO, "writing empty line")
+      end if
+      
+      write(Out, '(a)', iostat=IO) title
+      call Handle_IO_status(IO, "writing " // title)
+      
+      do i = 1, EMPL_AMOUNT
+         surname_str = ""
+         do j = 1, SURNAME_LEN
+            surname_str(j:j) = surnames(i, j)
+         end do
+         position_str = ""
+         do j = 1, POSITION_LEN
+            position_str(j:j) = positions(i, j)
+         end do
+         write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
+         call Handle_IO_status(IO, "writing employees")
+      end do
+
+      close(Out)
+   end subroutine WriteEmpl
+
 end module Order_io
