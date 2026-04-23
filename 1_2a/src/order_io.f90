@@ -3,7 +3,7 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 12   
+   integer, parameter :: EMPL_AMOUNT = 15   
    integer, parameter :: POS_AMOUNT = 5     
    
 contains
@@ -12,40 +12,29 @@ contains
    subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
       character(kind=CH_), intent(out) :: surnames(:, :), positions(:, :)
-      integer :: In, IO, i, j
-      character(SURNAME_LEN, kind=CH_) :: surname_str
-      character(POSITION_LEN, kind=CH_) :: position_str
-
+      integer :: In, IO, i
+      character(:), allocatable :: format
+      
       open (file=input_file, encoding=E_, newunit=In)
-         do i = 1, EMPL_AMOUNT
-            read(In, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-            call Handle_IO_status(IO, "reading employees")
-            do j = 1, SURNAME_LEN
-               surnames(i, j) = surname_str(j:j)
-            end do
-            do j = 1, POSITION_LEN
-               positions(i, j) = position_str(j:j)
-            end do
-         end do
-      close(In)
+         format = '( 15a1, 1x, 15a1)'
+         read (In, format, iostat=IO) (surnames(i, :), positions(i, :), i = 1, EMPL_AMOUNT)
+         call Handle_IO_status(IO, "reading employees")
+      close (In)
    end subroutine ReadEmpl
 
    !чтение должностей 
-   subroutine ReadPositions(positions_file, positions_rank)
+   
+subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(kind=CH_), intent(out) :: positions_rank(:, :)
-      integer :: In, IO, i, j
-      character(POSITION_LEN, kind=CH_) :: pos_str
-
+      integer :: In, IO, i
+      character(:), allocatable :: format
+      
       open (file=positions_file, encoding=E_, newunit=In)
-         do i = 1, POS_AMOUNT
-            read(In, '(a)', iostat=IO) pos_str
-            call Handle_IO_status(IO, "reading positions")
-            do j = 1, POSITION_LEN
-               positions_rank(i, j) = pos_str(j:j)
-            end do
-         end do
-      close(In)
+         format = '( 15a1)'
+         read (In, format, iostat=IO) (positions_rank(i, :), i = 1, POS_AMOUNT)
+         call Handle_IO_status(IO, "reading positions")
+      close (In)
    end subroutine ReadPositions
 
    !запись сотрудников 
@@ -54,14 +43,13 @@ contains
       character(kind=CH_), intent(in) :: surnames(:, :), positions(:, :)
       character(*), intent(in) :: title
       character(*), intent(in) :: mode  
-      integer :: Out, IO, i, j
-      character(SURNAME_LEN, kind=CH_) :: surname_str
-      character(POSITION_LEN, kind=CH_) :: position_str
-
+      integer :: Out, IO, i
+      character(:), allocatable :: format
+      
       if (mode == "rewind") then
          open(file=output_file, newunit=Out, iostat=IO, status='replace')
       else
-         open(file=output_file, position='append', newunit=Out, iostat=IO)
+         open(file=output_file,position='append', newunit=Out, iostat=IO)
       end if
       call Handle_IO_status(IO, "opening output file")
 
@@ -72,21 +60,12 @@ contains
       
       write(Out, '(a)', iostat=IO) title
       call Handle_IO_status(IO, "writing " // title)
-      
-      do i = 1, EMPL_AMOUNT
-         surname_str = ""
-         do j = 1, SURNAME_LEN
-            surname_str(j:j) = surnames(i, j)
-         end do
-         position_str = ""
-         do j = 1, POSITION_LEN
-            position_str(j:j) = positions(i, j)
-         end do
-         write(Out, '(a15, 1x, a15)', iostat=IO) surname_str, position_str
-         call Handle_IO_status(IO, "writing employees")
-      end do
+   
+      format = '( 15a1, 1x, 15a1)'
+      write(Out, format, iostat=IO) (surnames(i, :), positions(i, :), i = 1, EMPL_AMOUNT)
+      call Handle_IO_status(IO, "writing employees")
 
       close(Out)
-   end subroutine WriteEmpl
+end subroutine WriteEmpl
 
 end module Order_io

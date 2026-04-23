@@ -14,8 +14,8 @@ contains
       
       integer :: rank1, rank2
       
-      rank1 = findloc(positions_rank, trim(pos1), dim=1)
-      rank2 = findloc(positions_rank, trim(pos2), dim=1)
+      rank1 = findloc(positions_rank, pos1, dim=1)
+      rank2 = findloc(positions_rank, pos2, dim=1)
       
       ! Если должность не найдена, считаем её низшей
       if (rank1 == 0) rank1 = huge(1)

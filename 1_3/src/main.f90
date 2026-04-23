@@ -19,14 +19,14 @@ program main
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
    
    !cоздание неформатированного файла
-   call CreateFile(input_file, data_file, n)
+   call CreateFile(input_file, data_file)
    print *, "      Прочитано сотрудников: ", n
    
    call ReadPositions("../data/positions.txt", positions_rank)
    print *, "      Прочитано должностей: ", size(positions_rank)
    print *, ""
    
-   employees = ReadEmpl(data_file, n)
+   employees = ReadEmpl(data_file)
    
    call WriteEmpl(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
    

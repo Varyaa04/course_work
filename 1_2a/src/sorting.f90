@@ -14,25 +14,19 @@ contains
       character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
       !преобразование массива символов в строку
-      str_a = ""
       do i = 1, POSITION_LEN
          str_a(i:i) = a(i)
       end do
-      str_a = trim(str_a)
-      
-      str_b = ""
+
       do i = 1, POSITION_LEN
          str_b(i:i) = b(i)
       end do
-      str_b = trim(str_b)
-      
+    
       allocate(rank_strings(POS_AMOUNT))
       do i = 1, POS_AMOUNT
-         rank_strings(i) = ""
          do pos_a = 1, POSITION_LEN
             rank_strings(i)(pos_a:pos_a) = positions_rank(i, pos_a)
          end do
-         rank_strings(i) = trim(rank_strings(i))
       end do
       
       pos_a = findloc(rank_strings, str_a, dim=1)
@@ -49,7 +43,6 @@ contains
    subroutine SortEmpl(surnames, positions, positions_rank)
       character(kind=CH_), intent(inout) :: surnames(:, :), positions(:, :)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
-      
       integer :: n, j, k
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
@@ -70,7 +63,6 @@ contains
                   surnames(j, k) = surnames(j+1, k)
                   surnames(j+1, k) = tmp_s(k)
                end do
-               
                !обмен должностями
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(j, k)
@@ -93,7 +85,6 @@ contains
                   surnames(j, k) = surnames(j+1, k)
                   surnames(j+1, k) = tmp_s(k)
                end do
-               
                !обмен должностями
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(j, k)

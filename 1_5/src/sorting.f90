@@ -5,6 +5,8 @@ module Sorting
    
 contains
    
+!!!!НЕ ИСПОЛЬЗОВАТЬ ОПЕРАТОР data
+
    ! Сортировка списка сотрудников по рангу должности РЕКУРСИВНО методом пузырька
    pure recursive subroutine Sort_employee_list(employees, positions_rank, N)
       type(employees_data), intent(inout) :: employees
@@ -53,8 +55,8 @@ contains
       
       integer :: rank_j, rank_j1
       
-      rank_j  = findloc(positions_rank, trim(employees%positions(j)), dim=1)
-      rank_j1 = findloc(positions_rank, trim(employees%positions(j+1)), dim=1)
+      rank_j  = findloc(positions_rank, employees%positions(j), dim=1)
+      rank_j1 = findloc(positions_rank, employees%positions(j+1), dim=1)
       
       ! Меняем, если должность j+1 имеет БОЛЕЕ ВЫСОКИЙ ранг (меньший номер)
       Need_swap = rank_j > rank_j1

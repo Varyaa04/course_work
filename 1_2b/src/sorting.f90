@@ -9,30 +9,24 @@ contains
       character(kind=CH_), intent(in) :: a(:), b(:)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
-      integer :: pos_a, pos_b, i
+      integer :: pos_a, pos_b, j
       character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
       character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
       !преобразование массива символов в строку
-      str_a = ""
-      do i = 1, POSITION_LEN
-         str_a(i:i) = a(i)
+      do j = 1, POSITION_LEN
+         str_a(j:j) = a(j)
       end do
-      str_a = trim(str_a)
       
-      str_b = ""
-      do i = 1, POSITION_LEN
-         str_b(i:i) = b(i)
+      do j = 1, POSITION_LEN
+         str_b(j:j) = b(j)
       end do
-      str_b = trim(str_b)
       
       allocate(rank_strings(POS_AMOUNT))
-      do i = 1, POS_AMOUNT
-         rank_strings(i) = ""
+      do j = 1, POS_AMOUNT
          do pos_a = 1, POSITION_LEN
-            rank_strings(i)(pos_a:pos_a) = positions_rank(pos_a, i)  
+            rank_strings(j)(pos_a:pos_a) = positions_rank(pos_a, j)  
          end do
-         rank_strings(i) = trim(rank_strings(i))
       end do
       
       pos_a = findloc(rank_strings, str_a, dim=1)
@@ -70,7 +64,6 @@ contains
                   surnames(k, j) = surnames(k, j+1)
                   surnames(k, j+1) = tmp_s(k)
                end do
-               
                !обмен должностями
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)
@@ -93,7 +86,6 @@ contains
                   surnames(k, j) = surnames(k, j+1)
                   surnames(k, j+1) = tmp_s(k)
                end do
-               
                !обмен должностями
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)

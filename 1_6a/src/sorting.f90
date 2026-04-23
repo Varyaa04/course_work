@@ -42,8 +42,8 @@ contains
       
       integer :: rank_current, rank_next
       
-      rank_current = findloc(positions_rank, trim(current%position), dim=1)
-      rank_next    = findloc(positions_rank, trim(current%next%position), dim=1)
+      rank_current = findloc(positions_rank, current%position, dim=1)
+      rank_next    = findloc(positions_rank, current%next%position, dim=1)
       
       ! Меняем, если следующий сотрудник имеет БОЛЕЕ ВЫСОКИЙ ранг (меньший номер)
       swap_needed = rank_current > rank_next

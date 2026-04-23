@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:63cac4307d9afec0
-!need$ ad6d941a993102bd n order_io
-!need$ ddac13f897d5fcb3 n environment
+﻿!mod$ v1 sum:b08758d0ce616519
+!need$ 1ef0dd35d91559c5 n order_io
+!need$ cf5f96939bb5da86 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -99,17 +99,20 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 use order_io,only:surname_len
 use order_io,only:position_len
+use order_io,only:empl_amount
+use order_io,only:pos_amount
 use order_io,only:employee
 use order_io,only:createfile
 use order_io,only:readempl
 use order_io,only:writeempl
 use order_io,only:readpositions
+use order_io,only:string_to_array
 contains
-pure function needswap(empl1,empl2,positions_rank)
+pure function possless(empl1,empl2,positions_rank)
 type(employee),intent(in)::empl1
 type(employee),intent(in)::empl2
 character(15_4,4),intent(in)::positions_rank(:)
-logical(4)::needswap
+logical(4)::possless
 end
 pure subroutine sortempl(employees,positions_rank)
 type(employee),intent(inout)::employees(:)
