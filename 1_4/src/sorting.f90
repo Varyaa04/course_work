@@ -70,8 +70,8 @@ contains
       logical :: res
       integer :: ra, rb
       
-      ra = findloc(positions_rank, trim(a), dim=1)
-      rb = findloc(positions_rank, trim(b), dim=1)
+      ra = findloc(positions_rank, a, dim=1)
+      rb = findloc(positions_rank, b, dim=1)
       
       if (ra == 0 .or. rb == 0) then
          res = .false.

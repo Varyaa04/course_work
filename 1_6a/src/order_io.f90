@@ -94,7 +94,7 @@ contains
       do i = 1, m
          read(In, '(a)', iostat=IO) positions_rank(i)
          call Handle_IO_status(IO, "reading position rank, line " // i)
-         positions_rank(i) = trim(positions_rank(i))
+         positions_rank(i) = positions_rank(i)
       end do
       
       close(In)

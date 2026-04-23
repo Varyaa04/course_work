@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:6e31c26683f69b38
-!need$ ddac13f897d5fcb3 n environment
+﻿!mod$ v1 sum:74f9bf8089cda4c0
+!need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,7 +98,7 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=12_4
+integer(4),parameter::empl_amount=15_4
 integer(4),parameter::pos_amount=5_4
 contains
 subroutine readempl(input_file,surnames,positions)
