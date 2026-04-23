@@ -2,59 +2,64 @@ module Sorting
    use Environment
    use Order_io
    implicit none
-   
+
 contains
-   !сравнение должностей
-   pure logical function PossLess(empl1, empl2, positions_rank)
-      type(employee), intent(in) :: empl1, empl2
+
+   !функция сравнения должностей
+   pure function PositionLess(pos_a, pos_b, positions_rank) result(res)
+      character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer :: rank1, rank2
-      
-      rank1 = findloc(positions_rank, empl1%position, dim=1)
-      rank2 = findloc(positions_rank, empl2%position, dim=1)
-      
-      if (rank1 == 0 .or. rank2 == 0) then
-         PossLess = .false.
+      logical :: res
+      integer :: rank_a, rank_b
+
+      rank_a = findloc(positions_rank, pos_a, dim=1)
+      rank_b = findloc(positions_rank, pos_b, dim=1)
+
+      if (rank_a == 0 .or. rank_b == 0) then
+         res = .false.
       else
-         PossLess = rank1 > rank2
+         res = rank_a < rank_b
       end if
-   end function PossLess
-   
-   !сортировка чет-нечет
-   pure subroutine SortEmpl(employees, positions_rank)
+   end function PositionLess
+
+   !cортировка чёт-нечет 
+   subroutine SortEmployees(employees, positions_rank)
       type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       integer :: n, j
       type(employee) :: tmp
       logical :: sorted
-      
+
       n = size(employees)
       sorted = .false.
-      
+
       do while (.not. sorted)
          sorted = .true.
-         
-         !четная фаза
+
+         !чётная фаза
+         !$omp parallel do private(tmp) reduction(.and.:sorted)
          do j = 1, n-1, 2
-            if (PossLess(employees(j), employees(j+1), positions_rank)) then
+            if (PositionLess(employees(j+1)%position, employees(j)%position, positions_rank)) then
                tmp = employees(j)
                employees(j) = employees(j+1)
                employees(j+1) = tmp
                sorted = .false.
             end if
          end do
-         
-         !нечет фаза
+         !$omp end parallel do
+
+         !нечётная фаза
+         !$omp parallel do private(tmp) reduction(.and.:sorted)
          do j = 2, n-1, 2
-            if (PossLess(employees(j), employees(j+1), positions_rank)) then
+            if (PositionLess(employees(j+1)%position, employees(j)%position, positions_rank)) then
                tmp = employees(j)
                employees(j) = employees(j+1)
                employees(j+1) = tmp
                sorted = .false.
             end if
          end do
+         !$omp end parallel do
       end do
-      
-   end subroutine SortEmpl
-   
+   end subroutine SortEmployees
+
 end module Sorting
