@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:b08758d0ce616519
-!need$ 1ef0dd35d91559c5 n order_io
+﻿!mod$ v1 sum:59102eb8f9fd5943
+!need$ 1d1a27366c39ac3e n order_io
 !need$ cf5f96939bb5da86 n environment
 module sorting
 use environment,only:event_type
@@ -102,19 +102,18 @@ use order_io,only:position_len
 use order_io,only:empl_amount
 use order_io,only:pos_amount
 use order_io,only:employee
-use order_io,only:createfile
-use order_io,only:readempl
-use order_io,only:writeempl
+use order_io,only:createbinaryfile
+use order_io,only:reademployeesbinary
 use order_io,only:readpositions
-use order_io,only:string_to_array
+use order_io,only:writeemployeestext
 contains
-pure function possless(empl1,empl2,positions_rank)
-type(employee),intent(in)::empl1
-type(employee),intent(in)::empl2
+pure function positionless(pos_a,pos_b,positions_rank) result(res)
+character(15_4,4),intent(in)::pos_a
+character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
-logical(4)::possless
+logical(4)::res
 end
-pure subroutine sortempl(employees,positions_rank)
+subroutine sortemployees(employees,positions_rank)
 type(employee),intent(inout)::employees(:)
 character(15_4,4),intent(in)::positions_rank(:)
 end

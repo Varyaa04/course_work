@@ -1,41 +1,44 @@
 program main
    use Environment
-   use Sorting
    use Order_io
+   use Sorting
    use omp_lib
-   
    implicit none
-   character(:), allocatable :: input_file, output_file, data_file
-   
+
    type(employee), allocatable :: employees(:)
    character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
-   integer :: n
+
+   character(:), allocatable :: input_file, binary_file, output_file, pos_file
    real(8) :: start_time, end_time
-   
-   input_file  = "../data/input_file.txt"
+
+   input_file = "../data/input_file.txt"
+   binary_file = "employees.bin"
    output_file = "output.txt"
-   data_file   = "employees.dat"
-   
+   pos_file = "../data/positions.txt"
+
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
-   
-   !cоздание неформатированного файла
-   call CreateFile(input_file, data_file)
-   print *, "      Прочитано сотрудников: ", n
-   
-   call ReadPositions("../data/positions.txt", positions_rank)
-   print *, "      Прочитано должностей: ", size(positions_rank)
+
+
+   call ReadPositions(pos_file, positions_rank)
+   print *, "      Прочитано должностей: ", POS_AMOUNT
+
+   call CreateBinaryFile(input_file, binary_file)
+
+   print *, "      Чтение из двоичного"
+   employees = ReadEmployeesBinary(binary_file)
+   print *, "      Прочитано сотрудников: ", size(employees)
    print *, ""
-   
-   employees = ReadEmpl(data_file)
-   
-   call WriteEmpl(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
-   
+
+   call WriteEmployeesText(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
+
    start_time = omp_get_wtime()
-   call SortEmpl(employees, positions_rank)
+   call SortEmployees(employees, positions_rank)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
-   
-   call WriteEmpl(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
-   
+
+   call WriteEmployeesText(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
+
+   print *, "      Результат сохранён в output.txt"
+
 end program main
