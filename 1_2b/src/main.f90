@@ -31,7 +31,7 @@ program main
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
-
+   
    call WriteEmpl(output_file, surnames, positions, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
 
 end program main

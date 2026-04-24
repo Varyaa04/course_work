@@ -10,33 +10,33 @@ contains
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
       integer :: pos_a, pos_b, j
-      character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
-      character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
-      !преобразование массива символов в строку
-      do j = 1, POSITION_LEN
-         str_a(j:j) = a(j)
-      end do
+      pos_a = 0
+      pos_b = 0
       
-      do j = 1, POSITION_LEN
-         str_b(j:j) = b(j)
-      end do
-      
-      allocate(rank_strings(POS_AMOUNT))
+      ! поиск позиции для a 
       do j = 1, POS_AMOUNT
-         do pos_a = 1, POSITION_LEN
-            rank_strings(j)(pos_a:pos_a) = positions_rank(pos_a, j)  
-         end do
+         ! positions_rank(:, j) — столбец j (должность)
+         if (all(positions_rank(:, j) == a)) then
+            pos_a = j
+            exit
+         end if
       end do
       
-      pos_a = findloc(rank_strings, str_a, dim=1)
-      pos_b = findloc(rank_strings, str_b, dim=1)
+      ! поиск позиции для b
+      do j = 1, POS_AMOUNT
+         if (all(positions_rank(:, j) == b)) then
+            pos_b = j
+            exit
+         end if
+      end do
       
       if (pos_a == 0 .or. pos_b == 0) then
          res = .false.
       else
          res = pos_a < pos_b
       end if
+      
    end function PositionLess
    
    !cортировка чёт-нечет
@@ -48,6 +48,7 @@ contains
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
       
+      ! surnames(k, j): k — буква, j — сотрудник 
       n = size(surnames, 2)  
       sorted = .false.
     
@@ -58,18 +59,23 @@ contains
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do j = 1, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               !обмен фамилиями
+               !обмен фамилиями 
+               !$omp simd simdlen(32) 
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
                   surnames(k, j) = surnames(k, j+1)
                   surnames(k, j+1) = tmp_s(k)
                end do
+               !$omp end simd
+
                !обмен должностями
+               !$omp simd simdlen(32) 
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)
                   positions(k, j) = positions(k, j+1)
                   positions(k, j+1) = tmp_p(k)
                end do
+               !$omp end simd
                
                sorted = .false.
             end if
@@ -81,24 +87,29 @@ contains
          do j = 2, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
                !обмен фамилиями
+               !$omp simd simdlen(32) 
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
                   surnames(k, j) = surnames(k, j+1)
                   surnames(k, j+1) = tmp_s(k)
                end do
+               !$omp end simd
+
                !обмен должностями
+               !$omp simd simdlen(32)   
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)
                   positions(k, j) = positions(k, j+1)
                   positions(k, j+1) = tmp_p(k)
                end do
-               
+               !$omp end simd
+
                sorted = .false.
             end if
          end do
          !$omp end parallel do
       end do
-      
+
    end subroutine SortEmpl
    
 end module Sorting

@@ -12,12 +12,13 @@ contains
    subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
       character(kind=CH_), intent(out) :: surnames(:, :), positions(:, :)
-      integer :: In, IO, i
+      integer :: In, IO, j
       character(:), allocatable :: format
       
       open (file=input_file, encoding=E_, newunit=In)
          format = '(15a1, 1x, 15a1)'
-         read (In, format, iostat=IO) (surnames(:, i), positions(:, i), i = 1, EMPL_AMOUNT)
+         ! Вторая размерность - номер записи (j), первая - символы (индексы i и j поменяны)
+         read (In, format, iostat=IO) (surnames(:, j), positions(:, j), j = 1, EMPL_AMOUNT)
          call Handle_IO_status(IO, "reading employees")
       close (In)
    end subroutine ReadEmpl
@@ -26,12 +27,12 @@ contains
    subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(kind=CH_), intent(out) :: positions_rank(:, :)
-      integer :: In, IO, i
+      integer :: In, IO, j
       character(:), allocatable :: format
       
       open (file=positions_file, encoding=E_, newunit=In)
          format = '(15a1)'
-         read (In, format, iostat=IO) (positions_rank(:, i), i = 1, POS_AMOUNT)
+         read (In, format, iostat=IO) (positions_rank(:, j), j = 1, POS_AMOUNT)
          call Handle_IO_status(IO, "reading positions")
       close (In)
    end subroutine ReadPositions
@@ -42,7 +43,7 @@ contains
       character(kind=CH_), intent(in) :: surnames(:, :), positions(:, :)
       character(*), intent(in) :: title
       character(*), intent(in) :: mode  
-      integer :: Out, IO, i
+      integer :: Out, IO, j
       character(:), allocatable :: format
       
       if (mode == "rewind") then
@@ -61,7 +62,8 @@ contains
       call Handle_IO_status(IO, "writing " // title)
    
       format = '(15a1, 1x, 15a1)'
-      write(Out, format, iostat=IO) (surnames(:, i), positions(:, i), i = 1, EMPL_AMOUNT)
+      !surnames(:, j) — столбец j (фамилия из 15 букв)
+      write(Out, format, iostat=IO) (surnames(:, j), positions(:, j), j = 1, EMPL_AMOUNT)
       call Handle_IO_status(IO, "writing employees")
 
       close(Out)
