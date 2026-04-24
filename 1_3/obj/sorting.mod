@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:59102eb8f9fd5943
-!need$ 1d1a27366c39ac3e n order_io
+﻿!mod$ v1 sum:a788c135b038f602
+!need$ 6630031921800fd4 n order_io
 !need$ cf5f96939bb5da86 n environment
 module sorting
 use environment,only:event_type
@@ -102,9 +102,10 @@ use order_io,only:position_len
 use order_io,only:empl_amount
 use order_io,only:pos_amount
 use order_io,only:employee
-use order_io,only:createbinaryfile
+use order_io,only:createemplbinary
 use order_io,only:reademployeesbinary
-use order_io,only:readpositions
+use order_io,only:createpositionsbinary
+use order_io,only:readpositionsbinary
 use order_io,only:writeemployeestext
 contains
 pure function positionless(pos_a,pos_b,positions_rank) result(res)

@@ -5,65 +5,7 @@ module Sorting
    
 contains
    
-   !Сортировка структуры массивов по должности
-    subroutine Sort_employees(employees, positions_rank)
-      type(employees_data), intent(inout) :: employees
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      
-      integer :: n, j, k
-      character(SURNAME_LEN, kind=CH_) :: tmp_surname
-      character(POSITION_LEN, kind=CH_) :: tmp_position
-      logical :: sorted
-      
-      n = size(employees%surnames)
-      sorted = .false.
-      
-      do while (.not. sorted)
-         sorted = .true.
-         
-         !Четная фаза
-         !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
-         do j = 1, n-1, 2
-            if (PositionLess(employees%positions(j+1), employees%positions(j), positions_rank)) then
-               ! Обмен фамилиями
-               tmp_surname = employees%surnames(j)
-               employees%surnames(j) = employees%surnames(j+1)
-               employees%surnames(j+1) = tmp_surname
-               
-               ! Обмен должностями
-               tmp_position = employees%positions(j)
-               employees%positions(j) = employees%positions(j+1)
-               employees%positions(j+1) = tmp_position
-               
-               sorted = .false.
-            end if
-         end do
-         !$omp end parallel do
-         
-         !Нечетная фаза
-         !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
-         do j = 2, n-1, 2
-            if (PositionLess(employees%positions(j+1), employees%positions(j), positions_rank)) then
-               !Обмен фамилиями
-               tmp_surname = employees%surnames(j)
-               employees%surnames(j) = employees%surnames(j+1)
-               employees%surnames(j+1) = tmp_surname
-               
-               !Обмен должностями
-               tmp_position = employees%positions(j)
-               employees%positions(j) = employees%positions(j+1)
-               employees%positions(j+1) = tmp_position
-               
-               sorted = .false.
-            end if
-         end do
-         !$omp end parallel do
-         
-      end do
-      
-   end subroutine Sort_employees
-   
-   !Сравнение должностей
+   ! Сравнение должностей
    pure function PositionLess(a, b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: a, b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -79,5 +21,48 @@ contains
          res = ra < rb
       end if
    end function PositionLess
+   
+   ! Сортировка массива структур по должности (чёт-нечет)
+   subroutine SortEmployees(employees, positions_rank)
+      type(employee), intent(inout) :: employees(:)
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      
+      integer :: n, i
+      type(employee) :: tmp
+      logical :: sorted
+      
+      n = size(employees)
+      sorted = .false.
+      
+      do while (.not. sorted)
+         sorted = .true.
+         
+         ! Чётная фаза
+         !$omp parallel do private(tmp) reduction(.and.:sorted)
+         do i = 1, n-1, 2
+            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+               tmp = employees(i)
+               employees(i) = employees(i+1)
+               employees(i+1) = tmp
+               sorted = .false.
+            end if
+         end do
+         !$omp end parallel do
+         
+         ! Нечётная фаза
+         !$omp parallel do private(tmp) reduction(.and.:sorted)
+         do i = 2, n-1, 2
+            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+               tmp = employees(i)
+               employees(i) = employees(i+1)
+               employees(i+1) = tmp
+               sorted = .false.
+            end if
+         end do
+         !$omp end parallel do
+         
+      end do
+      
+   end subroutine SortEmployees
    
 end module Sorting

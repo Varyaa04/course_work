@@ -26,7 +26,7 @@ contains
    subroutine SortEmployees(employees, positions_rank)
       type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer :: n, j
+      integer :: n, i
       type(employee) :: tmp
       logical :: sorted
 
@@ -38,11 +38,11 @@ contains
 
          !чётная фаза
          !$omp parallel do private(tmp) reduction(.and.:sorted)
-         do j = 1, n-1, 2
-            if (PositionLess(employees(j+1)%position, employees(j)%position, positions_rank)) then
-               tmp = employees(j)
-               employees(j) = employees(j+1)
-               employees(j+1) = tmp
+         do i = 1, n-1, 2
+            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+               tmp = employees(i)
+               employees(i) = employees(i+1)
+               employees(i+1) = tmp
                sorted = .false.
             end if
          end do
@@ -50,11 +50,11 @@ contains
 
          !нечётная фаза
          !$omp parallel do private(tmp) reduction(.and.:sorted)
-         do j = 2, n-1, 2
-            if (PositionLess(employees(j+1)%position, employees(j)%position, positions_rank)) then
-               tmp = employees(j)
-               employees(j) = employees(j+1)
-               employees(j+1) = tmp
+         do i = 2, n-1, 2
+            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+               tmp = employees(i)
+               employees(i) = employees(i+1)
+               employees(i+1) = tmp
                sorted = .false.
             end if
          end do
