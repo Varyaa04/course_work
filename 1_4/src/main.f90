@@ -1,42 +1,47 @@
 program main
    use Environment
-   use Sorting
    use Order_io
+   use Sorting
    use omp_lib
-   
    implicit none
-   character(:), allocatable :: input_file, output_file, binary_file
-   
-   type(employees_data) :: employees
+
+   type(employee), allocatable :: employees(:)
    character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
-   integer :: n
+
+   character(:), allocatable :: input_file, binary_file, output_file, pos_file, binary_pos_file
    real(8) :: start_time, end_time
-   
-   input_file  = "../data/input_file.txt"
-   output_file = "output.txt"
+
+   input_file = "../data/input_file.txt"
    binary_file = "employees.bin"
-   
+   output_file = "output.txt"
+   pos_file = "../data/positions.txt"
+   binary_pos_file = "positions.bin"
+
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
-   
-   call Read_formatted_file(input_file, employees, n)
-   print *, "      Прочитано сотрудников: ", n
-   
-   call Write_binary_file(binary_file, employees)
-   print *, "      Создан двоичный файл: ", binary_file
-   
-   call Read_positions("../data/positions.txt", positions_rank)
+
+
+   !cоздание бинарного файла с должностями
+   call CreatePositionsBinary(pos_file, binary_pos_file)
+   positions_rank = ReadPositionsBinary(binary_pos_file)
    print *, "      Прочитано должностей: ", size(positions_rank)
+
+
+   !cоздание бинарного файла с сотрудниками
+   call ReadEmployeesBinary(input_file, employees)     
+   call WriteBinaryFile(binary_file, employees)      
+   print *, "      Прочитано сотрудников: ", size(employees)
    print *, ""
-   
-   call Write_output_file(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
-   
+
+   call WriteOutputFile(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
+
    start_time = omp_get_wtime()
-   call Sort_employees(employees, positions_rank)
+   call SortEmployees(employees, positions_rank)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
-   
-   call Write_output_file(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
-   
-   
+
+   call WriteOutputFile(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
+
+   print *, "      Результат сохранён в output.txt"
+
 end program main

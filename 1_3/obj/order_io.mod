@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:1d1a27366c39ac3e
+﻿!mod$ v1 sum:6630031921800fd4
 !need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
@@ -98,14 +98,14 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=12_4
+integer(4),parameter::empl_amount=15_4
 integer(4),parameter::pos_amount=5_4
 type::employee
 character(15_4,4)::surname=4_"               "
 character(15_4,4)::position=4_"               "
 end type
 contains
-subroutine createbinaryfile(input_file,binary_file)
+subroutine createemplbinary(input_file,binary_file)
 character(*,1),intent(in)::input_file
 character(*,1),intent(in)::binary_file
 end
@@ -113,9 +113,13 @@ function reademployeesbinary(binary_file) result(employees)
 character(*,1),intent(in)::binary_file
 type(employee),allocatable::employees(:)
 end
-subroutine readpositions(pos_file,positions_rank)
+subroutine createpositionsbinary(pos_file,binary_pos_file)
 character(*,1),intent(in)::pos_file
-character(15_4,4),allocatable,intent(out)::positions_rank(:)
+character(*,1),intent(in)::binary_pos_file
+end
+function readpositionsbinary(binary_pos_file) result(positions_rank)
+character(*,1),intent(in)::binary_pos_file
+character(15_4,4),allocatable::positions_rank(:)
 end
 subroutine writeemployeestext(output_file,employees,title,position)
 character(*,1),intent(in)::output_file

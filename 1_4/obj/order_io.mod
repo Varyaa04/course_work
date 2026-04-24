@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:092b04dec79236a2
-!need$ ddac13f897d5fcb3 n environment
+﻿!mod$ v1 sum:288639211a53eb86
+!need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,34 +98,33 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::align=64_4
-type::employees_data
-character(15_4,4),allocatable::surnames(:)
-character(15_4,4),allocatable::positions(:)
+integer(4),parameter::empl_amount=15_4
+integer(4),parameter::pos_amount=5_4
+type::employee
+character(15_4,4)::surname=4_"               "
+character(15_4,4)::position=4_"               "
 end type
 contains
-subroutine read_formatted_file(input_file,employees,n)
+subroutine reademployeesbinary(input_file,employees)
 character(*,1),intent(in)::input_file
-type(employees_data),intent(out)::employees
-integer(4),intent(out)::n
+type(employee),allocatable,intent(out)::employees(:)
 end
-subroutine write_binary_file(binary_file,employees)
+subroutine writebinaryfile(binary_file,employees)
 character(*,1),intent(in)::binary_file
-type(employees_data),intent(in)::employees
+type(employee),intent(in)::employees(:)
 end
-function read_binary_file(binary_file,n) result(employees)
-character(*,1),intent(in)::binary_file
-integer(4),intent(in)::n
-type(employees_data)::employees
+subroutine createpositionsbinary(pos_file,binary_pos_file)
+character(*,1),intent(in)::pos_file
+character(*,1),intent(in)::binary_pos_file
 end
-subroutine write_output_file(output_file,employees,title,position)
+function readpositionsbinary(binary_pos_file) result(positions_rank)
+character(*,1),intent(in)::binary_pos_file
+character(15_4,4),allocatable::positions_rank(:)
+end
+subroutine writeoutputfile(output_file,employees,title,position)
 character(*,1),intent(in)::output_file
-type(employees_data),intent(in)::employees
+type(employee),intent(in)::employees(:)
 character(*,1),intent(in)::title
 character(*,1),intent(in)::position
-end
-subroutine read_positions(positions_file,positions_rank)
-character(*,1),intent(in)::positions_file
-character(15_4,4),allocatable,intent(out)::positions_rank(:)
 end
 end

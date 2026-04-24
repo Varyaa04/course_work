@@ -2,85 +2,96 @@ module Order_io
    use Environment
    implicit none
    
-   integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: ALIGN = 64
+   integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15, EMPL_AMOUNT = 15
+   integer, parameter :: POS_AMOUNT = 5
    
-   !Структура массивов 
-   type employees_data
-      character(SURNAME_LEN, kind=CH_), allocatable :: surnames(:)
-      character(POSITION_LEN, kind=CH_), allocatable :: positions(:)
-   end type employees_data
+   !структура одного сотрудника
+   type employee
+      character(SURNAME_LEN, kind=CH_)   :: surname  = ""
+      character(POSITION_LEN, kind=CH_)  :: position = ""
+   end type employee
    
 contains
-   subroutine Read_formatted_file(input_file, employees, n)
+   
+   !чтение из текстового файла
+   subroutine ReadEmployeesBinary(input_file, employees)
       character(*), intent(in) :: input_file
-      type(employees_data), intent(out) :: employees
-      integer, intent(out) :: n
+      type(employee), allocatable, intent(out) :: employees(:)
       
       integer :: In, IO, i
       character(:), allocatable :: format
       
+      allocate(employees(EMPL_AMOUNT))
+      
       open(file=input_file, encoding=E_, newunit=In, iostat=IO)
       call Handle_IO_status(IO, "opening formatted input file")
       
-      !Подсчёт строк
-      n = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (is_iostat_end(IO)) exit
-         n = n + 1
-      end do
-      rewind(In)
-      
-      !Выделение памяти
-      allocate(employees%surnames(n), employees%positions(n))
-      
       format = '(a15, 1x, a15)'
-      read(In, format, iostat=IO) (employees%surnames(i), employees%positions(i), i = 1, n)
-      call Handle_IO_status(IO, "reading formatted file with implicit loop")
+      read(In, format, iostat=IO) (employees(i)%surname, employees(i)%position, i = 1, EMPL_AMOUNT)
+      call Handle_IO_status(IO, "reading formatted file")
       
       close(In)
-   end subroutine Read_formatted_file
+   end subroutine ReadEmployeesBinary
    
-   subroutine Write_binary_file(binary_file, employees)
+   ! Запись бинарного файла (потоковый режим)
+   subroutine WriteBinaryFile(binary_file, employees)
       character(*), intent(in) :: binary_file
-      type(employees_data), intent(in) :: employees
+      type(employee), intent(in) :: employees(:)
       
       integer :: Out, IO
       
       open(file=binary_file, form='unformatted', newunit=Out, access='stream', iostat=IO)
       call Handle_IO_status(IO, "opening binary file for writing")
       
-      write(Out, iostat=IO) employees%surnames, employees%positions
+      write(Out, iostat=IO) employees
       call Handle_IO_status(IO, "writing binary file")
       
       close(Out)
-   end subroutine Write_binary_file
+   end subroutine WriteBinaryFile
    
-   !чтение 
-   function Read_binary_file(binary_file, n) result(employees)
-      character(*), intent(in) :: binary_file
-      integer, intent(in) :: n
-      type(employees_data) :: employees
+   ! Создание бинарного файла с должностями
+   subroutine CreatePositionsBinary(pos_file, binary_pos_file)
+      character(*), intent(in) :: pos_file, binary_pos_file
+      character(POSITION_LEN, kind=CH_) :: pos
+      integer :: In, Out, IO, i
+      
+      open(file=pos_file, encoding=E_, newunit=In)
+      open(file=binary_pos_file, form='unformatted', newunit=Out, access='stream', iostat=IO)
+      call Handle_IO_status(IO, "opening binary positions file")
+      
+      do i = 1, POS_AMOUNT
+         read(In, '(a)', iostat=IO) pos
+         call Handle_IO_status(IO, "reading position " // i)
+         write(Out, iostat=IO) pos
+         call Handle_IO_status(IO, "writing position " // i)
+      end do
+      
+      close(In)
+      close(Out)
+   end subroutine CreatePositionsBinary
+   
+   ! Чтение должностей из бинарного файла
+   function ReadPositionsBinary(binary_pos_file) result(positions_rank)
+      character(*), intent(in) :: binary_pos_file
+      character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
       
       integer :: In, IO
       
-      allocate(employees%surnames(n), employees%positions(n))
+      allocate(positions_rank(POS_AMOUNT))
       
-      !потоковый режим
-      open(file=binary_file, form='unformatted', newunit=In, access='stream', iostat=IO)
-      call Handle_IO_status(IO, "opening binary file for reading")
+      open(file=binary_pos_file, form='unformatted', newunit=In, access='stream', iostat=IO)
+      call Handle_IO_status(IO, "opening binary positions file")
       
-      read(In, iostat=IO) employees%surnames, employees%positions
-      call Handle_IO_status(IO, "reading binary file")
+      read(In, iostat=IO) positions_rank
+      call Handle_IO_status(IO, "reading positions")
       
       close(In)
-   end function Read_binary_file
+   end function ReadPositionsBinary
    
-   !Вывод в текстовый файл (для отчёта)
-   subroutine Write_output_file(output_file, employees, title, position)
+   ! Вывод в текстовый файл
+   subroutine WriteOutputFile(output_file, employees, title, position)
       character(*), intent(in) :: output_file, position, title
-      type(employees_data), intent(in) :: employees
+      type(employee), intent(in) :: employees(:)
       
       integer :: Out, IO, i
       logical :: file_exists
@@ -89,9 +100,9 @@ contains
       inquire(file=output_file, exist=file_exists)
       
       if (position == 'append' .and. file_exists) then
-         open(file=output_file, position='append', newunit=Out, iostat=IO, encoding=E_)
+         open(file=output_file, position='append', newunit=Out, iostat=IO)
       else
-         open(file=output_file, newunit=Out, iostat=IO, encoding=E_)
+         open(file=output_file, newunit=Out, iostat=IO)
       end if
       call Handle_IO_status(IO, "opening output file")
       
@@ -101,41 +112,12 @@ contains
       write(Out, '(a)', iostat=IO) title
       
       format = '(a15, 1x, a15)'
-      do i = 1, size(employees%surnames)
-         write(Out, format, iostat=IO) employees%surnames(i), employees%positions(i)
+      do i = 1, size(employees)
+         write(Out, format, iostat=IO) employees(i)%surname, employees(i)%position
       end do
       call Handle_IO_status(IO, "writing " // title)
       
       close(Out)
-   end subroutine Write_output_file
-   
-   !Чтение ранга должностей из текстового файла
-   subroutine Read_positions(positions_file, positions_rank)
-      character(*), intent(in) :: positions_file
-      character(POSITION_LEN, kind=CH_), allocatable, intent(out) :: positions_rank(:)
-      
-      integer :: In, IO, m, i
-      
-      open(file=positions_file, encoding=E_, newunit=In, iostat=IO)
-      call Handle_IO_status(IO, "opening positions file")
-      
-      m = 0
-      do
-         read(In, '(a)', iostat=IO)
-         if (is_iostat_end(IO)) exit
-         m = m + 1
-      end do
-      rewind(In)
-      
-      allocate(positions_rank(m))
-      
-      do i = 1, m
-         read(In, '(a)', iostat=IO) positions_rank(i)
-         call Handle_IO_status(IO, "reading position rank, line " // i)
-         positions_rank(i) = positions_rank(i)
-      end do
-      
-      close(In)
-   end subroutine Read_positions
+   end subroutine WriteOutputFile
    
 end module Order_io

@@ -8,23 +8,26 @@ program main
    type(employee), allocatable :: employees(:)
    character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
 
-   character(:), allocatable :: input_file, binary_file, output_file, pos_file
+   character(:), allocatable :: input_file, binary_file, output_file, pos_file, binary_pos_file
    real(8) :: start_time, end_time
 
    input_file = "../data/input_file.txt"
    binary_file = "employees.bin"
    output_file = "output.txt"
    pos_file = "../data/positions.txt"
+   binary_pos_file = "positions.bin"
 
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
 
 
-   call ReadPositions(pos_file, positions_rank)
-   print *, "      Прочитано должностей: ", POS_AMOUNT
+   !cоздание бинарного файла с должностями
+   call CreatePositionsBinary(pos_file, binary_pos_file)
+   positions_rank = ReadPositionsBinary(binary_pos_file)
+   print *, "      Прочитано должностей: ", size(positions_rank)
 
-   call CreateBinaryFile(input_file, binary_file)
 
-   print *, "      Чтение из двоичного"
+   !cоздание бинарного файла с сотрудниками
+   call CreateEmplBinary(input_file, binary_file)
    employees = ReadEmployeesBinary(binary_file)
    print *, "      Прочитано сотрудников: ", size(employees)
    print *, ""
