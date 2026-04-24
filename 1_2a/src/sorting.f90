@@ -10,40 +10,39 @@ contains
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
       integer :: pos_a, pos_b, i
-      character(len=POSITION_LEN, kind=CH_) :: str_a, str_b
-      character(len=POSITION_LEN, kind=CH_), allocatable :: rank_strings(:)
       
-      !преобразование массива символов в строку
-      do i = 1, POSITION_LEN
-         str_a(i:i) = a(i)
-      end do
-
-      do i = 1, POSITION_LEN
-         str_b(i:i) = b(i)
-      end do
-    
-      allocate(rank_strings(POS_AMOUNT))
+      pos_a = 0
+      pos_b = 0
+      
+      ! поиск позиции для a - неявный цикл через all
       do i = 1, POS_AMOUNT
-         do pos_a = 1, POSITION_LEN
-            rank_strings(i)(pos_a:pos_a) = positions_rank(i, pos_a)
-         end do
+         if (all(positions_rank(i, :) == a)) then
+            pos_a = i
+            exit
+         end if
       end do
       
-      pos_a = findloc(rank_strings, str_a, dim=1)
-      pos_b = findloc(rank_strings, str_b, dim=1)
+      ! поиск позиции для b
+      do i = 1, POS_AMOUNT
+         if (all(positions_rank(i, :) == b)) then
+            pos_b = i
+            exit
+         end if
+      end do
       
       if (pos_a == 0 .or. pos_b == 0) then
          res = .false.
       else
          res = pos_a < pos_b
       end if
+      
    end function PositionLess
    
    !cортировка чёт-нечет
    subroutine SortEmpl(surnames, positions, positions_rank)
       character(kind=CH_), intent(inout) :: surnames(:, :), positions(:, :)
       character(kind=CH_), intent(in) :: positions_rank(:, :)
-      integer :: n, j, k
+      integer :: n, i, k
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
       
@@ -55,19 +54,19 @@ contains
          
          ! Чётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
-         do j = 1, n-1, 2
-            if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
+         do i = 1, n-1, 2
+            if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
                !обмен фамилиями
                do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(j, k)
-                  surnames(j, k) = surnames(j+1, k)
-                  surnames(j+1, k) = tmp_s(k)
+                  tmp_s(k) = surnames(i, k)
+                  surnames(i, k) = surnames(i+1, k)
+                  surnames(i+1, k) = tmp_s(k)
                end do
                !обмен должностями
                do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(j, k)
-                  positions(j, k) = positions(j+1, k)
-                  positions(j+1, k) = tmp_p(k)
+                  tmp_p(k) = positions(i, k)
+                  positions(i, k) = positions(i+1, k)
+                  positions(i+1, k) = tmp_p(k)
                end do
                
                sorted = .false.
@@ -77,19 +76,19 @@ contains
          
          !нечётная фаза 
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
-         do j = 2, n-1, 2
-            if (PositionLess(positions(j+1, :), positions(j, :), positions_rank)) then
+         do i = 2, n-1, 2
+            if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
                !обмен фамилиями
                do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(j, k)
-                  surnames(j, k) = surnames(j+1, k)
-                  surnames(j+1, k) = tmp_s(k)
+                  tmp_s(k) = surnames(i, k)
+                  surnames(i, k) = surnames(i+1, k)
+                  surnames(i+1, k) = tmp_s(k)
                end do
                !обмен должностями
                do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(j, k)
-                  positions(j, k) = positions(j+1, k)
-                  positions(j+1, k) = tmp_p(k)
+                  tmp_p(k) = positions(i, k)
+                  positions(i, k) = positions(i+1, k)
+                  positions(i+1, k) = tmp_p(k)
                end do
                
                sorted = .false.
