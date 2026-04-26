@@ -18,29 +18,28 @@ program main
    binary_pos_file = "positions.bin"
 
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
-
+   print *, ""
 
    !cоздание бинарного файла с должностями
-   call CreatePositionsBinary(pos_file, binary_pos_file)
-   positions_rank = ReadPositionsBinary(binary_pos_file)
+   call Create_positions_binary(pos_file, binary_pos_file)
+   positions_rank = Read_positions_binary(binary_pos_file)
    print *, "      Прочитано должностей: ", size(positions_rank)
 
-
-   !cоздание бинарного файла с сотрудниками
-   call ReadEmployeesBinary(input_file, employees)     
-   call WriteBinaryFile(binary_file, employees)      
+   !coздание бинарного файла с сотрудниками
+   call Create_employees_binary(input_file, binary_file)
+   employees = Read_employees_binary(binary_file)
    print *, "      Прочитано сотрудников: ", size(employees)
    print *, ""
 
-   call WriteOutputFile(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
+   call Output_employees_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
 
    start_time = omp_get_wtime()
-   call SortEmployees(employees, positions_rank)
+   call Sort_employees(employees, positions_rank)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
 
-   call WriteOutputFile(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
+   call Output_employees_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
 
    print *, "      Результат сохранён в output.txt"
 

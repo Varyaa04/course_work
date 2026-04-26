@@ -1,65 +1,69 @@
 module Sorting
    use Environment
-   use Order_io
+   use Order_IO
    implicit none
    
 contains
    
-!!!!НЕ ИСПОЛЬЗОВАТЬ ОПЕРАТОР data
-
-   ! Сортировка списка сотрудников по рангу должности РЕКУРСИВНО методом пузырька
-   pure recursive subroutine Sort_employee_list(employees, positions_rank, N)
-      type(employees_data), intent(inout) :: employees
+   !cравнение должностей 
+   pure function Position_less(a, b, positions_rank) result(res)
+      character(POSITION_LEN, kind=CH_), intent(in) :: a, b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: N
+      logical :: res
+      integer :: ra, rb
       
-      ! Работаем только с первыми N элементами: помещаем в их конец менее приоритетного
-      call Drop_down(employees, positions_rank, 1, N-1)
+      ra = findloc(positions_rank, a, dim=1)
+      rb = findloc(positions_rank, b, dim=1)
       
-      ! Если необходимо, делаем то же с последними N-1 элементами
-      if (N >= 3) &
-         call Sort_employee_list(employees, positions_rank, N-1)
-   end subroutine Sort_employee_list
-   
-   ! Помещаем с j-ой на N-ую позицию менее приоритетного, поочерёдно сравнивая
-   pure recursive subroutine Drop_down(employees, positions_rank, j, N)
-      type(employees_data), intent(inout) :: employees
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: j, N
-      
-      character(SURNAME_LEN, kind=CH_) :: tmp_surname
-      character(POSITION_LEN, kind=CH_) :: tmp_position
-      
-      ! Если требуется, то меняем местами текущего сотрудника со следующим
-      if (Need_swap(employees, positions_rank, j)) then
-         ! Обмен фамилиями
-         tmp_surname = employees%surnames(j+1)
-         employees%surnames(j+1) = employees%surnames(j)
-         employees%surnames(j) = tmp_surname
-         
-         ! Обмен должностями
-         tmp_position = employees%positions(j+1)
-         employees%positions(j+1) = employees%positions(j)
-         employees%positions(j) = tmp_position
+      if (ra == 0 .or. rb == 0) then
+         res = .false.
+      else
+         res = ra > rb  
       end if
-      
-      if (j < N) &
-         call Drop_down(employees, positions_rank, j+1, N)
-   end subroutine Drop_down
+   end function Position_less
    
-   ! Проверка, нужно ли менять местами сотрудников
-   pure logical function Need_swap(employees, positions_rank, j)
-      type(employees_data), intent(in) :: employees
+   !сортировка чет-нечет и хвостовая рекурсия
+   recursive subroutine Sort_employees(employees, positions_rank, n)
+      type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: j
+      integer, intent(in) :: n
       
-      integer :: rank_j, rank_j1
+      integer :: i
+      type(employee) :: tmp
+      logical :: sorted
       
-      rank_j  = findloc(positions_rank, employees%positions(j), dim=1)
-      rank_j1 = findloc(positions_rank, employees%positions(j+1), dim=1)
+      if (n <= 1) return
       
-      ! Меняем, если должность j+1 имеет БОЛЕЕ ВЫСОКИЙ ранг (меньший номер)
-      Need_swap = rank_j > rank_j1
-   end function Need_swap
+      sorted = .true.
+      
+      !четная фаза
+      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      do i = 1, n-1, 2
+         if (Position_less(employees(i)%position, employees(i+1)%position, positions_rank)) then
+            tmp = employees(i)
+            employees(i) = employees(i+1)
+            employees(i+1) = tmp
+            sorted = .false.
+         end if
+      end do
+      !$omp end parallel do
+      
+      !нечетная фаза
+      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      do i = 2, n-1, 2
+         if (Position_less(employees(i)%position, employees(i+1)%position, positions_rank)) then
+            tmp = employees(i)
+            employees(i) = employees(i+1)
+            employees(i+1) = tmp
+            sorted = .false.
+         end if
+      end do
+      !$omp end parallel do
+      
+      !хвостовая рекурсия: если не отсортирован, повторяем
+      if (.not. sorted) then
+         call Sort_employees(employees, positions_rank, n)
+      end if
+   end subroutine Sort_employees
    
 end module Sorting
