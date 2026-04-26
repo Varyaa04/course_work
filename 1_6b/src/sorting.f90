@@ -1,82 +1,165 @@
 module Sorting
    use Environment
-   use Order_io
+   use Order_IO
    implicit none
    
 contains
    
-   ! Логическая функция сравнения двух должностей
-   ! Возвращает .true., если pos1 выше по рангу (имеет меньший индекс в массиве)
-   pure function Is_position_higher(pos1, pos2, positions_rank) result(higher)
+   ! Сравнение должностей
+   pure function Position_less(pos1, pos2, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: pos1, pos2
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      logical :: higher
-      
+      logical :: res
       integer :: rank1, rank2
       
-      rank1 = findloc(positions_rank, pos1, dim=1)
-      rank2 = findloc(positions_rank, pos2, dim=1)
+      rank1 = Get_position_rank(pos1, positions_rank)
+      rank2 = Get_position_rank(pos2, positions_rank)
       
-      ! Если должность не найдена, считаем её низшей
-      if (rank1 == 0) rank1 = huge(1)
-      if (rank2 == 0) rank2 = huge(1)
-      
-      higher = rank1 < rank2
-   end function Is_position_higher
+      if (rank1 == 0 .or. rank2 == 0) then
+         res = .false.
+      else
+         res = rank1 > rank2
+      end if
+   end function Position_less
    
-   ! Логическая функция проверки необходимости обмена
-   pure function Need_swap(current, positions_rank) result(swap_needed)
-      type(employee), intent(in) :: current
+   ! ЧЁТ-НЕЧЕТ СОРТИРОВКА с использованием массива структур (для OpenMP)
+   recursive subroutine Sort_employee_list(employees, positions_rank, n)
+      type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      logical :: swap_needed
+      integer, intent(in) :: n
       
-      ! Меняем, если следующий сотрудник имеет БОЛЕЕ ВЫСОКИЙ ранг
-      swap_needed = Is_position_higher(current%next%position, current%position, positions_rank)
-   end function Need_swap
-   
-   ! Сортировка списка сотрудников по рангу должности (хвостовая рекурсия)
-   recursive subroutine Sort_employee_list(employees, positions_rank, N)
-      type(employee), pointer, intent(inout) :: employees
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: N
+      type(employee), allocatable :: array(:)
+      logical :: sorted
+      integer :: i
+      type(employee) :: tmp
       
-      ! Работаем только с первыми N элементами: помещаем в их конец менее приоритетного
-      call Drop_down(employees, positions_rank, 1, N-1)
+      if (n <= 1) return
       
-      ! Если необходимо, делаем то же с первыми N-1 элементами (хвостовая рекурсия)
-      if (N >= 3) &
-         call Sort_employee_list(employees, positions_rank, N-1)
-   end subroutine Sort_employee_list
-   
-   ! Помещаем с j-ой на N-ую позицию менее приоритетного (хвостовая рекурсия)
-   recursive subroutine Drop_down(employees, positions_rank, j, N)
-      type(employee), pointer :: employees
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: j, N
+      ! Преобразуем список в массив структур
+      allocate(array(n))
+      call List_to_array(employees, array, 1)
       
-      ! Если требуется, то меняем местами текущего сотрудника со следующим
-      if (Associated(employees%next)) then
-         if (Need_swap(employees, positions_rank)) then
-            call Swap_from_current(employees)
+      sorted = .true.
+      
+      ! ЧЁТНАЯ ФАЗА - параллельная
+      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      do i = 1, n-1, 2
+         if (Position_less(array(i)%position, array(i+1)%position, positions_rank)) then
+            tmp = array(i)
+            array(i) = array(i+1)
+            array(i+1) = tmp
+            sorted = .false.
          end if
+      end do
+      !$omp end parallel do
+      
+      ! НЕЧЁТНАЯ ФАЗА - параллельная
+      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      do i = 2, n-1, 2
+         if (Position_less(array(i)%position, array(i+1)%position, positions_rank)) then
+            tmp = array(i)
+            array(i) = array(i+1)
+            array(i+1) = tmp
+            sorted = .false.
+         end if
+      end do
+      !$omp end parallel do
+      
+      ! Восстанавливаем список из массива
+      call Free_employee_list(employees)
+      call Array_to_list(employees, array, 1)
+      
+      ! ХВОСТОВАЯ РЕКУРСИЯ
+      if (.not. sorted) then
+         call Sort_employee_list(employees, positions_rank, n)
       end if
       
-      ! Хвостовая рекурсия - переход к следующему элементу
-      if (j < N) &
-         call Drop_down(employees%next, positions_rank, j+1, N)
-   end subroutine Drop_down
+      deallocate(array)
+   end subroutine Sort_employee_list
    
-   ! Перестановка местами двух элементов списка, начиная с текущего
-   subroutine Swap_from_current(current)
-      type(employee), pointer :: current
+   ! Альтернативная версия: сортировка прямым обменом в списке (без OpenMP)
+   recursive subroutine Sort_employee_list_direct(employees, positions_rank, n)
+      type(employee), allocatable, intent(inout) :: employees
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      integer, intent(in) :: n
       
-      type(employee), pointer :: tmp_emp
+      logical :: sorted
       
-      ! Перестановка: current и current%next меняются местами
-      tmp_emp       => current%next
-      current%next  => current%next%next
-      tmp_emp%next  => current
-      current       => tmp_emp
-   end subroutine Swap_from_current
+      if (n <= 1) return
+      
+      sorted = .true.
+      
+      ! ЧЁТНАЯ ФАЗА
+      call Odd_phase_direct(employees, positions_rank, 1, n, sorted)
+      
+      ! НЕЧЁТНАЯ ФАЗА
+      if (allocated(employees%next)) then
+         call Even_phase_direct(employees%next, positions_rank, 2, n, sorted)
+      end if
+      
+      ! ХВОСТОВАЯ РЕКУРСИЯ
+      if (.not. sorted) then
+         call Sort_employee_list_direct(employees, positions_rank, n)
+      end if
+   end subroutine Sort_employee_list_direct
+   
+   ! ЧЁТНАЯ ФАЗА (прямая работа со списком)
+   recursive subroutine Odd_phase_direct(current, positions_rank, pos, n, sorted)
+      type(employee), allocatable, intent(inout) :: current
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      integer, intent(in) :: pos, n
+      logical, intent(inout) :: sorted
+      
+      if (.not. allocated(current)) return
+      if (.not. allocated(current%next)) return
+      if (pos >= n) return
+      
+      if (Position_less(current%position, current%next%position, positions_rank)) then
+         call Swap_data(current, current%next)
+         sorted = .false.
+      end if
+      
+      if (allocated(current%next%next)) then
+         call Odd_phase_direct(current%next%next, positions_rank, pos + 2, n, sorted)
+      end if
+   end subroutine Odd_phase_direct
+   
+   ! НЕЧЁТНАЯ ФАЗА (прямая работа со списком)
+   recursive subroutine Even_phase_direct(current, positions_rank, pos, n, sorted)
+      type(employee), allocatable, intent(inout) :: current
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      integer, intent(in) :: pos, n
+      logical, intent(inout) :: sorted
+      
+      if (.not. allocated(current)) return
+      if (.not. allocated(current%next)) return
+      if (pos >= n) return
+      
+      if (Position_less(current%position, current%next%position, positions_rank)) then
+         call Swap_data(current, current%next)
+         sorted = .false.
+      end if
+      
+      if (allocated(current%next%next)) then
+         call Even_phase_direct(current%next%next, positions_rank, pos + 2, n, sorted)
+      end if
+   end subroutine Even_phase_direct
+   
+   ! Обмен данными между двумя узлами
+   pure subroutine Swap_data(node1, node2)
+      type(employee), intent(inout) :: node1, node2
+      
+      character(SURNAME_LEN, kind=CH_) :: tmp_surname
+      character(POSITION_LEN, kind=CH_) :: tmp_position
+      
+      tmp_surname = node1%surname
+      tmp_position = node1%position
+      
+      node1%surname = node2%surname
+      node1%position = node2%position
+      
+      node2%surname = tmp_surname
+      node2%position = tmp_position
+   end subroutine Swap_data
    
 end module Sorting

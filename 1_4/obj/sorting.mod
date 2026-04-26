@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:fd8e5f2758258d6b
-!need$ 288639211a53eb86 n order_io
+﻿!mod$ v1 sum:24bad5ea1f5affb5
+!need$ 11c612a01169e037 n order_io
 !need$ cf5f96939bb5da86 n environment
 module sorting
 use environment,only:event_type
@@ -102,19 +102,20 @@ use order_io,only:position_len
 use order_io,only:empl_amount
 use order_io,only:pos_amount
 use order_io,only:employee
-use order_io,only:reademployeesbinary
-use order_io,only:writebinaryfile
-use order_io,only:createpositionsbinary
-use order_io,only:readpositionsbinary
-use order_io,only:writeoutputfile
+use order_io,only:read_employees_list
+use order_io,only:create_employees_binary
+use order_io,only:read_employees_binary
+use order_io,only:create_positions_binary
+use order_io,only:read_positions_binary
+use order_io,only:output_employees_list
 contains
-pure function positionless(a,b,positions_rank) result(res)
+pure function position_less(a,b,positions_rank) result(res)
 character(15_4,4),intent(in)::a
 character(15_4,4),intent(in)::b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
-subroutine sortemployees(employees,positions_rank)
+subroutine sort_employees(employees,positions_rank)
 type(employee),intent(inout)::employees(:)
 character(15_4,4),intent(in)::positions_rank(:)
 end

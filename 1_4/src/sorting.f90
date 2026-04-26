@@ -5,8 +5,8 @@ module Sorting
    
 contains
    
-   ! Сравнение должностей
-   pure function PositionLess(a, b, positions_rank) result(res)
+   !cравнение должностей
+   pure function Position_less(a, b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: a, b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical :: res
@@ -20,10 +20,10 @@ contains
       else
          res = ra < rb
       end if
-   end function PositionLess
+   end function Position_less
    
-   ! Сортировка массива структур по должности (чёт-нечет)
-   subroutine SortEmployees(employees, positions_rank)
+   !cортировка чёт-нечет 
+   subroutine Sort_employees(employees, positions_rank)
       type(employee), intent(inout) :: employees(:)
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
@@ -37,10 +37,10 @@ contains
       do while (.not. sorted)
          sorted = .true.
          
-         ! Чётная фаза
+         !чётная фаза
          !$omp parallel do private(tmp) reduction(.and.:sorted)
          do i = 1, n-1, 2
-            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+            if (Position_less(employees(i+1)%position, employees(i)%position, positions_rank)) then
                tmp = employees(i)
                employees(i) = employees(i+1)
                employees(i+1) = tmp
@@ -49,10 +49,10 @@ contains
          end do
          !$omp end parallel do
          
-         ! Нечётная фаза
+         !нечётная фаза
          !$omp parallel do private(tmp) reduction(.and.:sorted)
          do i = 2, n-1, 2
-            if (PositionLess(employees(i+1)%position, employees(i)%position, positions_rank)) then
+            if (Position_less(employees(i+1)%position, employees(i)%position, positions_rank)) then
                tmp = employees(i)
                employees(i) = employees(i+1)
                employees(i+1) = tmp
@@ -63,6 +63,6 @@ contains
          
       end do
       
-   end subroutine SortEmployees
+   end subroutine Sort_employees
    
 end module Sorting

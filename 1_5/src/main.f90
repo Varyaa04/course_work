@@ -1,46 +1,43 @@
 program main
    use Environment
    use Sorting
-   use Order_io
+   use Order_IO
    use omp_lib
    
    implicit none
-   character(:), allocatable :: input_file, output_file, data_file
+   character(:), allocatable :: input_file, output_file, data_file, pos_file
    
-   type(employees_data) :: employees
-   character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
-   integer :: n
+   type(employee), allocatable :: employees(:)
+   character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
    real(8) :: start_time, end_time
    
    input_file  = "../data/input_file.txt"
    output_file = "output.txt"
    data_file   = "employees.bin"
+   pos_file    = "../data/positions.txt"
    
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
-   
-   ! Создание неформатированного файла из текстового
-   call Create_data_file(input_file, data_file, n)
-   print *, "      Прочитано сотрудников: ", n
-   
-   ! Чтение ранга должностей
-   call Read_positions("../data/positions.txt", positions_rank)
-   print *, "      Прочитано должностей: ", size(positions_rank)
    print *, ""
    
-   ! Чтение списка сотрудников из неформатированного файла
-   employees = Read_employee_list(data_file, n)
+   call Create_data_file(input_file, data_file)
+   print *, "      Прочитано сотрудников: ", EMPL_AMOUNT
    
-   ! Вывод исходного списка
+   call Read_positions(pos_file, positions_rank)
+   print *, "      Прочитано должностей: ", POS_AMOUNT
+   print *, ""
+   
+   employees = Read_employee_list(data_file)
+   
    call Output_employee_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
    
-   ! ЗАМЕР ВРЕМЕНИ ТОЛЬКО СОРТИРОВКИ
    start_time = omp_get_wtime()
-   call Sort_employee_list(employees, positions_rank, n)
+   call Sort_employees(employees, positions_rank, EMPL_AMOUNT)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""
    
-   ! Вывод отсортированного списка
    call Output_employee_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
+   
+   print *, "      Результат сохранён в output.txt"
    
 end program main
