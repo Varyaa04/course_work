@@ -4,7 +4,7 @@ program main
    use Order_io
    use omp_lib
    implicit none
-
+!+1 практ по вект modulo!!
    character(kind=CH_) :: surnames(SURNAME_LEN, EMPL_AMOUNT)       
    character(kind=CH_) :: positions(POSITION_LEN, EMPL_AMOUNT)    
    character(kind=CH_) :: positions_rank(POSITION_LEN, POS_AMOUNT)

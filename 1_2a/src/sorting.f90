@@ -78,7 +78,7 @@ contains
          !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
          do i = 2, n-1, 2
             if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
-               !обмен фамилиями
+ !!убрать явно              !обмен фамилиями
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(i, k)
                   surnames(i, k) = surnames(i+1, k)
