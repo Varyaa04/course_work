@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:4fa5cac4928b651d
+﻿!mod$ v1 sum:d1f635917d96a344
 !need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
@@ -107,14 +107,9 @@ type(employee),pointer::next=>NULL()
 end type
 intrinsic::null
 contains
-function read_employee_list(input_file) result(head)
+function read_employee_list(input_file) result(empl)
 character(*,1),intent(in)::input_file
-type(employee),pointer::head
-end
-subroutine read_employee_data(in,emp,num)
-integer(4),intent(in)::in
-type(employee),intent(inout)::emp
-integer(4),intent(in)::num
+type(employee),pointer::empl
 end
 recursive subroutine read_remaining_employees(in,prev,num)
 integer(4),intent(in)::in

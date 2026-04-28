@@ -14,7 +14,7 @@ contains
       pos_a = 0
       pos_b = 0
       
-      ! поиск позиции для a - неявный цикл через all
+      ! поиск позиции для a 
       do i = 1, POS_AMOUNT
          if (all(positions_rank(i, :) == a)) then
             pos_a = i

@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:995f5c0f56cc2e87
-!need$ 4fa5cac4928b651d n order_io
+﻿!mod$ v1 sum:f406cb7bb98cae96
+!need$ d1f635917d96a344 n order_io
 !need$ cf5f96939bb5da86 n environment
 module sorting
 use environment,only:event_type
@@ -104,7 +104,6 @@ use order_io,only:pos_amount
 use order_io,only:employee
 use order_io,only:null
 use order_io,only:read_employee_list
-use order_io,only:read_employee_data
 use order_io,only:read_remaining_employees
 use order_io,only:read_positions
 use order_io,only:get_position_rank

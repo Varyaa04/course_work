@@ -15,34 +15,36 @@ module Order_IO
 contains
    
    ! Чтение списка сотрудников из форматированного файла
-   function Read_employee_list(Input_File) result(head)
-      type(employee), pointer :: head
+   function Read_employee_list(Input_File) result(empl)
+      type(employee), pointer :: empl
       character(*), intent(in) :: Input_File
       integer :: In, i
       
       open(file=Input_File, encoding=E_, newunit=In)
       
       ! Чтение первого сотрудника
-      allocate(head)
-      call Read_employee_data(In, head, 1)
+      allocate(empl)
+      call Read_employee_data(In, empl, 1)
       
       ! Чтение остальных сотрудников (ХВОСТОВАЯ РЕКУРСИЯ)
-      call Read_remaining_employees(In, head, 2)
-      
+      call Read_remaining_employees(In, empl, 2)
       close(In)
+
+      contains
+      ! Чтение данных одного сотрудника
+         subroutine Read_employee_data(In, emp, num)
+            integer, intent(in) :: In, num
+            type(employee), intent(inout) :: emp
+            integer :: IO
+            character(:), allocatable :: format
+            
+            format = '(a15, 1x, a15)'
+            read(In, format, iostat=IO) emp%surname, emp%position
+            call Handle_IO_status(IO, "reading employee " // num)
+         end subroutine Read_employee_data
    end function Read_employee_list
    
-   ! Чтение данных одного сотрудника
-   subroutine Read_employee_data(In, emp, num)
-      integer, intent(in) :: In, num
-      type(employee), intent(inout) :: emp
-      integer :: IO
-      character(:), allocatable :: format
-      
-      format = '(a15, 1x, a15)'
-      read(In, format, iostat=IO) emp%surname, emp%position
-      call Handle_IO_status(IO, "reading employee " // num)
-   end subroutine Read_employee_data
+  
    
    ! ХВОСТОВАЯ РЕКУРСИЯ: чтение оставшихся сотрудников
    recursive subroutine Read_remaining_employees(In, prev, num)

@@ -1,6 +1,7 @@
 module Sorting
    use Order_io
    use Environment
+   use omp_lib
    implicit none
    
 contains
@@ -52,6 +53,15 @@ contains
       n = size(surnames, 2)  
       sorted = .false.
     
+    ! ДОБАВЬТЕ ЭТОТ БЛОК ДЛЯ ДИАГНОСТИКИ:
+   !$omp parallel
+   !$omp single
+   print *, "=== Внутри SortEmpl ==="
+   print *, "Количество потоков: ", omp_get_num_threads()
+   print *, "Максимум потоков:   ", omp_get_max_threads()
+   print *, "======================"
+   !$omp end single
+   !$omp end parallel
       do while (.not. sorted)
          sorted = .true.
          
