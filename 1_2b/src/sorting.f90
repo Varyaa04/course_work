@@ -52,16 +52,7 @@ contains
       ! surnames(k, j): k — буква, j — сотрудник 
       n = size(surnames, 2)  
       sorted = .false.
-    
-    ! ДОБАВЬТЕ ЭТОТ БЛОК ДЛЯ ДИАГНОСТИКИ:
-   !$omp parallel
-   !$omp single
-   print *, "=== Внутри SortEmpl ==="
-   print *, "Количество потоков: ", omp_get_num_threads()
-   print *, "Максимум потоков:   ", omp_get_max_threads()
-   print *, "======================"
-   !$omp end single
-   !$omp end parallel
+   
       do while (.not. sorted)
          sorted = .true.
          
@@ -70,7 +61,7 @@ contains
          do j = 1, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
                !обмен фамилиями 
-               !$omp simd simdlen(32) 
+               !$omp simd simdlen(32) !aligned(surnames:32)
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
                   surnames(k, j) = surnames(k, j+1)

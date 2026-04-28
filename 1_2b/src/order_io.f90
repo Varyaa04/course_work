@@ -18,7 +18,7 @@ contains
       open (file=input_file, encoding=E_, newunit=In)
          format = '(15a1, 1x, 15a1)'
          ! Вторая размерность - номер записи (j), первая - символы (индексы i и j поменяны)
-         read (In, format, iostat=IO) (surnames(:, j), positions(:, j), j = 1, EMPL_AMOUNT)
+         read (In, format, iostat=IO) (surnames(1:SURNAME_LEN, j), positions(:, j), j = 1, EMPL_AMOUNT)
          call Handle_IO_status(IO, "reading employees")
       close (In)
    end subroutine ReadEmpl
