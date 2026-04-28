@@ -5,7 +5,7 @@ program main
    use omp_lib
    implicit none
 
-   type(employee), allocatable :: employees(:)
+   type(employees_soa), allocatable :: employees
    character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
 
    character(:), allocatable :: input_file, binary_file, output_file, pos_file, binary_pos_file
@@ -22,13 +22,15 @@ program main
 
    !cоздание бинарного файла с должностями
    call Create_positions_binary(pos_file, binary_pos_file)
+   allocate(positions_rank(POS_AMOUNT))
    positions_rank = Read_positions_binary(binary_pos_file)
    print *, "      Прочитано должностей: ", size(positions_rank)
 
-   !coздание бинарного файла с сотрудниками
+   !cоздание бинарного файла с сотрудниками
    call Create_employees_binary(input_file, binary_file)
+   allocate(employees)
    employees = Read_employees_binary(binary_file)
-   print *, "      Прочитано сотрудников: ", size(employees)
+   print *, "      Прочитано сотрудников: ", size(employees%surnames)
    print *, ""
 
    call Output_employees_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
@@ -40,7 +42,5 @@ program main
    print *, ""
 
    call Output_employees_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
-
-   print *, "      Результат сохранён в output.txt"
 
 end program main

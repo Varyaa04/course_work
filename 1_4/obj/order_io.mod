@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:11c612a01169e037
+﻿!mod$ v1 sum:530ab46088ed1ff0
 !need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
@@ -100,14 +100,14 @@ integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
 integer(4),parameter::empl_amount=15_4
 integer(4),parameter::pos_amount=5_4
-type::employee
-character(15_4,4)::surname=4_"               "
-character(15_4,4)::position=4_"               "
+type::employees_soa
+character(15_4,4)::surnames(1_8:15_8)
+character(15_4,4)::positions(1_8:15_8)
 end type
 contains
 subroutine read_employees_list(input_file,employees)
 character(*,1),intent(in)::input_file
-type(employee),allocatable,intent(out)::employees(:)
+type(employees_soa),intent(out)::employees
 end
 subroutine create_employees_binary(input_file,binary_file)
 character(*,1),intent(in)::input_file
@@ -115,7 +115,7 @@ character(*,1),intent(in)::binary_file
 end
 function read_employees_binary(binary_file) result(employees)
 character(*,1),intent(in)::binary_file
-type(employee),allocatable::employees(:)
+type(employees_soa)::employees
 end
 subroutine create_positions_binary(pos_file,binary_pos_file)
 character(*,1),intent(in)::pos_file
@@ -123,11 +123,11 @@ character(*,1),intent(in)::binary_pos_file
 end
 function read_positions_binary(binary_pos_file) result(positions_rank)
 character(*,1),intent(in)::binary_pos_file
-character(15_4,4),allocatable::positions_rank(:)
+character(15_4,4)::positions_rank(1_8:5_8)
 end
 subroutine output_employees_list(output_file,employees,list_name,position)
 character(*,1),intent(in)::output_file
-type(employee),intent(in)::employees(:)
+type(employees_soa),intent(in)::employees
 character(*,1),intent(in)::list_name
 character(*,1),intent(in)::position
 end
