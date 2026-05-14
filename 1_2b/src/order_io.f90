@@ -3,8 +3,8 @@ module Order_io
    implicit none
    
    !длины должны быть кратны 32 байтам
-   integer, parameter :: SURNAME_LEN = 32      
-   integer, parameter :: POSITION_LEN = 32   
+   integer, parameter :: SURNAME_LEN = 16      
+   integer, parameter :: POSITION_LEN = 16 !посмотреть в лекции формулу "практич рек по векторизации"   
    integer, parameter :: REAL_SURNAME_LEN = 15
    integer, parameter :: REAL_POSITION_LEN = 15
    integer, parameter :: EMPL_AMOUNT = 15   
@@ -20,7 +20,8 @@ contains
       character(:), allocatable :: format
       character(kind=CH_) :: temp_surnames(15, EMPL_AMOUNT)  !временный массив для чтения
       character(kind=CH_) :: temp_positions(15, EMPL_AMOUNT) !временный массив для чтения
-      
+    
+      !allocate aligned! 
       allocate(surnames(SURNAME_LEN, EMPL_AMOUNT))
       allocate(positions(POSITION_LEN, EMPL_AMOUNT))
       
@@ -29,8 +30,8 @@ contains
       positions = ''
       
       open (file=input_file, encoding=E_, newunit=In)
-         format = '(' // REAL_SURNAME_LEN// 'a1, 1x, ' // REAL_POSITION_LEN// 'a1)'
-         !читаем во временный массив
+      format = '(' // REAL_SURNAME_LEN// 'a1, 1x, ' // REAL_POSITION_LEN// 'a1)'
+      !читаем во временный массив
          read (In, format, iostat=IO) (temp_surnames(1:15, j), temp_positions(1:15, j), j = 1, EMPL_AMOUNT)
          call Handle_IO_status(IO, "reading employees")
          

@@ -46,6 +46,7 @@ contains
       character(kind=CH_), allocatable :: tmp_s(:), tmp_p(:)
       
       n = size(surnames, 2)
+      !$omp allocate aligned!!!
       allocate(tmp_s(SURNAME_LEN))
       allocate(tmp_p(POSITION_LEN))
       
@@ -60,6 +61,9 @@ contains
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
                !обмен фамилиями 
                !$omp simd aligned(surnames, tmp_s:32)
+               !каждую строчку явным циклом
+               !при размещении surnames allocate aligned 
+               !fomp -simd fomp -allocators 
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
                   surnames(k, j) = surnames(k, j+1)

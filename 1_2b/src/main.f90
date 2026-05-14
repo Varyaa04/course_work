@@ -4,7 +4,7 @@ program main
    use Order_io
    use omp_lib
    implicit none
-!+1 практ по вект modulo!!
+   
    character(kind=CH_), allocatable :: surnames(:, :), positions(:, :), positions_rank(:, :)
    character(:), allocatable :: input_file, output_file, pos_file
    real(8) :: start_time, end_time
@@ -28,12 +28,7 @@ program main
 
    start_time = omp_get_wtime()
    
-   ! Неявный цикл с modulo для векторизации
-   !$omp simd aligned(surnames, positions:32) simdlen(32)
-   do i = 1, SIMD_LEN
-      call SortEmpl(surnames, positions, positions_rank)
-   end do
-   !$omp end simd
+   call SortEmpl(surnames, positions, positions_rank)
    
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"

@@ -65,8 +65,7 @@ contains
       open (file=pos_file, encoding=E_, newunit=In)
       open (file=binary_pos_file, form='unformatted', newunit=Out, access='direct', recl=recl)
 
-      do i = 1, POS_AMOUNT
-         read (In, '(a)', iostat=IO) pos
+
          call Handle_IO_Status(IO, "reading position " // i)
          
          write (Out, iostat=IO, rec=i) pos
