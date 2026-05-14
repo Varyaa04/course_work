@@ -5,7 +5,7 @@ module Sorting
 
 contains
 
-   !функция сравнения должностей
+   !функция сравнения должностей 
    pure function PositionLess(pos_a, pos_b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -59,6 +59,7 @@ contains
             end if
          end do
          !$omp end parallel do
+
       end do
    end subroutine SortEmployees
 

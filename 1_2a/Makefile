@@ -1,11 +1,11 @@
 FC=flang
-FFLAGS=-fimplicit-none -fopenmp
+FFLAGS=-fimplicit-none -fopenmp -march=native
 FOPT=-O3
 
-OMP_ROOT = /usr/lib/llvm-19
-OMP_LIB = -L$(OMP_ROOT)/lib -lomp
-#OMP_ROOT=/opt/homebrew/opt/libomp
-#OMP_LIB=-L$(OMP_ROOT)/lib -lomp
+#OMP_ROOT = /usr/lib/llvm-19
+#OMP_LIB = -L$(OMP_ROOT)/lib -lomp
+OMP_ROOT=/opt/homebrew/opt/libomp
+OMP_LIB=-L$(OMP_ROOT)/lib -lomp
 OMP_INC = -I$(OMP_ROOT)/include
 
 all: obj bin

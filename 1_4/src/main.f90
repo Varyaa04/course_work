@@ -36,7 +36,7 @@ program main
    call Output_employees_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
 
    start_time = omp_get_wtime()
-   call Sort_employees(employees, positions_rank)
+   call SortEmployees(employees, positions_rank)
    end_time = omp_get_wtime()
    print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
    print *, ""

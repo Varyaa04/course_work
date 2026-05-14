@@ -1,5 +1,5 @@
 FC=flang
-FFLAGS=-fimplicit-none -fopenmp
+FFLAGS=-fimplicit-none -fopenmp -march=native
 FOPT=-O3
 
 

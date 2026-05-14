@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:870e95ececd00b65
-!need$ ddac13f897d5fcb3 n environment
+﻿!mod$ v1 sum:c975eeb36e4119ae
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -96,19 +96,21 @@ use environment,only:operator(//)
 use environment,only:int_plus_string
 use environment,only:string_plus_int
 use environment,only:handle_io_status
-integer(4),parameter::surname_len=15_4
-integer(4),parameter::position_len=15_4
+integer(4),parameter::surname_len=32_4
+integer(4),parameter::position_len=32_4
+integer(4),parameter::real_surname_len=15_4
+integer(4),parameter::real_position_len=15_4
 integer(4),parameter::empl_amount=15_4
 integer(4),parameter::pos_amount=5_4
 contains
 subroutine readempl(input_file,surnames,positions)
 character(*,1),intent(in)::input_file
-character(1_8,4),intent(out)::surnames(:,:)
-character(1_8,4),intent(out)::positions(:,:)
+character(1_8,4),allocatable,intent(out)::surnames(:,:)
+character(1_8,4),allocatable,intent(out)::positions(:,:)
 end
 subroutine readpositions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
-character(1_8,4),intent(out)::positions_rank(:,:)
+character(1_8,4),allocatable,intent(out)::positions_rank(:,:)
 end
 subroutine writeempl(output_file,surnames,positions,title,mode)
 character(*,1),intent(in)::output_file

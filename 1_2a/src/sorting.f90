@@ -52,51 +52,44 @@ contains
       do while (.not. sorted)
          sorted = .true.
          
-         ! Чётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
+        !чётная фаза 
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
          do i = 1, n-1, 2
             if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
                !обмен фамилиями
-               do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(i, k)
-                  surnames(i, k) = surnames(i+1, k)
-                  surnames(i+1, k) = tmp_s(k)
-               end do
-               !обмен должностями
-               do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(i, k)
-                  positions(i, k) = positions(i+1, k)
-                  positions(i+1, k) = tmp_p(k)
-               end do
+               tmp_s = surnames(i, :)
+               surnames(i, :) = surnames(i+1, :)
+               surnames(i+1, :) = tmp_s
+               
+               !обмен должностями 
+               tmp_p = positions(i, :)
+               positions(i, :) = positions(i+1, :)
+               positions(i+1, :) = tmp_p
                
                sorted = .false.
             end if
          end do
          !$omp end parallel do
-         
+
          !нечётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p, k) reduction(.and.:sorted)
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
          do i = 2, n-1, 2
             if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
- !!убрать явно              !обмен фамилиями
-               do k = 1, SURNAME_LEN
-                  tmp_s(k) = surnames(i, k)
-                  surnames(i, k) = surnames(i+1, k)
-                  surnames(i+1, k) = tmp_s(k)
-               end do
+               !обмен фамилиями 
+               tmp_s = surnames(i, :)
+               surnames(i, :) = surnames(i+1, :)
+               surnames(i+1, :) = tmp_s
+               
                !обмен должностями
-               do k = 1, POSITION_LEN
-                  tmp_p(k) = positions(i, k)
-                  positions(i, k) = positions(i+1, k)
-                  positions(i+1, k) = tmp_p(k)
-               end do
+               tmp_p = positions(i, :)
+               positions(i, :) = positions(i+1, :)
+               positions(i+1, :) = tmp_p
                
                sorted = .false.
             end if
          end do
          !$omp end parallel do
       end do
-      
    end subroutine SortEmpl
    
 end module Sorting

@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:6acc589c960b4e18
-!need$ 870e95ececd00b65 n order_io
-!need$ 968970201586bac9 i omp_lib
+﻿!mod$ v1 sum:4942be3fd0933c25
+!need$ c975eeb36e4119ae n order_io
+!need$ 04073e6def6a6fb2 i omp_lib
 module sorting
 use order_io,only:event_type
 use order_io,only:notify_type
@@ -99,6 +99,8 @@ use order_io,only:string_plus_int
 use order_io,only:handle_io_status
 use order_io,only:surname_len
 use order_io,only:position_len
+use order_io,only:real_surname_len
+use order_io,only:real_position_len
 use order_io,only:empl_amount
 use order_io,only:pos_amount
 use order_io,only:readempl
@@ -366,8 +368,8 @@ character(1_8,4),intent(in)::positions_rank(:,:)
 logical(4)::res
 end
 subroutine sortempl(surnames,positions,positions_rank)
-character(1_8,4),intent(inout)::surnames(:,:)
-character(1_8,4),intent(inout)::positions(:,:)
+character(1_8,4),allocatable,intent(inout)::surnames(:,:)
+character(1_8,4),allocatable,intent(inout)::positions(:,:)
 character(1_8,4),intent(in)::positions_rank(:,:)
 end
 end

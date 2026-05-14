@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:ddac13f897d5fcb3
-!need$ 29c9cb4205006d99 i iso_fortran_env
+﻿!mod$ v1 sum:5cbba2cdaa980ab0
+!need$ 1a32eb149a6bb8e0 i iso_fortran_env
 module environment
 use,intrinsic::iso_fortran_env,only:event_type
 use,intrinsic::iso_fortran_env,only:notify_type
@@ -97,15 +97,15 @@ procedure::int_plus_string
 procedure::string_plus_int
 end interface
 contains
-pure function int_plus_string(int,str) result(res)
-integer(4),intent(in)::int
+pure function int_plus_string(i,str) result(res)
+integer(4),intent(in)::i
 character(*,1),intent(in)::str
-character(200_4,1)::res
+character(int(int(str%len,kind=8),kind=4)+max(floor(log10(real(i,kind=8)))+1_4,1_4),1)::res
 end
-pure function string_plus_int(str,int) result(res)
+pure function string_plus_int(str,i) result(res)
 character(*,1),intent(in)::str
-integer(4),intent(in)::int
-character(200_4,1)::res
+integer(4),intent(in)::i
+character(int(int(str%len,kind=8),kind=4)+max(floor(log10(real(i,kind=8)))+1_4,1_4),1)::res
 end
 subroutine handle_io_status(io,where)
 integer(4),intent(in)::io

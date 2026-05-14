@@ -5,8 +5,8 @@ module Sorting
    
 contains
    
-   ! сравнение должностей
-   pure function Position_less(pos_a, pos_b, positions_rank) result(res)
+   !сравнение должностей
+   pure function PositionLess(pos_a, pos_b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical :: res
@@ -20,10 +20,10 @@ contains
       else
          res = rank_a < rank_b
       end if
-   end function Position_less
+   end function PositionLess
    
    ! сортировка чёт-нечет для структуры массивов
-   subroutine Sort_employees(employees, positions_rank)
+   subroutine SortEmployees(employees, positions_rank)
       type(employees_soa), intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
@@ -38,16 +38,16 @@ contains
       do while (.not. sorted)
          sorted = .true.
          
-         ! чётная фаза
+         !чётная фаза
          !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
          do i = 1, n-1, 2
-            if (Position_less(employees%positions(i+1), employees%positions(i), positions_rank)) then
-               ! меняем местами фамилии
+            if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
+               !меняем местами фамилии
                tmp_surname = employees%surnames(i)
                employees%surnames(i) = employees%surnames(i+1)
                employees%surnames(i+1) = tmp_surname
                
-               ! меняем местами должности
+               !меняем местами должности
                tmp_position = employees%positions(i)
                employees%positions(i) = employees%positions(i+1)
                employees%positions(i+1) = tmp_position
@@ -57,16 +57,16 @@ contains
          end do
          !$omp end parallel do
          
-         ! нечётная фаза
+         !нечётная фаза
          !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
          do i = 2, n-1, 2
-            if (Position_less(employees%positions(i+1), employees%positions(i), positions_rank)) then
-               ! меняем местами фамилии
+            if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
+               !меняем местами фамилии
                tmp_surname = employees%surnames(i)
                employees%surnames(i) = employees%surnames(i+1)
                employees%surnames(i+1) = tmp_surname
                
-               ! меняем местами должности
+               !меняем местами должности
                tmp_position = employees%positions(i)
                employees%positions(i) = employees%positions(i+1)
                employees%positions(i+1) = tmp_position
@@ -78,6 +78,6 @@ contains
          
       end do
       
-   end subroutine Sort_employees
+   end subroutine SortEmployees
    
 end module Sorting

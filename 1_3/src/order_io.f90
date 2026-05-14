@@ -21,16 +21,16 @@ contains
       integer :: In, Out, IO, i, recl
       character(:), allocatable :: format
 
-      recl = SURNAME_LEN * CH_ + POSITION_LEN * CH_ !длина одной записи в байтах для прямого доступа
-      format = '(a15, 1x, a15)'
+      recl = (SURNAME_LEN * CH_) + (POSITION_LEN * CH_)
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
 
       open (file=input_file, encoding=E_, newunit=In)
       open (file=binary_file, form='unformatted', newunit=Out, access='direct', recl=recl)
 
       do i = 1, EMPL_AMOUNT
-         read (In, format, iostat=IO) emp%surname, emp%position
+      read (In, format, iostat=IO) emp
          call Handle_IO_Status(IO, "reading formatted employee " // i)
-
+         
          write (Out, iostat=IO, rec=i) emp
          call Handle_IO_Status(IO, "writing unformatted employee " // i)
       end do
@@ -39,14 +39,14 @@ contains
       close (Out)
    end subroutine CreateEmplBinary
 
-   !чтение всего массива структур из неформатированного файла
+   !чтение cотрудников из неформатированного файла
    function ReadEmployeesBinary(binary_file) result(employees)
       character(*), intent(in) :: binary_file
       type(employee), allocatable :: employees(:)
       integer :: In, IO, recl
 
       allocate(employees(EMPL_AMOUNT))
-      recl = (SURNAME_LEN * CH_ + POSITION_LEN * CH_) * EMPL_AMOUNT !длина всего массива в байтах для чтения за один раз
+      recl = ((SURNAME_LEN * CH_) + (POSITION_LEN * CH_)) * EMPL_AMOUNT
 
       open (file=binary_file, form='unformatted', newunit=In, access='direct', recl=recl)
       read (In, iostat=IO, rec=1) employees
@@ -68,7 +68,7 @@ contains
       do i = 1, POS_AMOUNT
          read (In, '(a)', iostat=IO) pos
          call Handle_IO_Status(IO, "reading position " // i)
-
+         
          write (Out, iostat=IO, rec=i) pos
          call Handle_IO_Status(IO, "writing unformatted position " // i)
       end do
@@ -104,11 +104,9 @@ contains
       write (Out, '(/, a)', iostat=IO) title
       call Handle_IO_Status(IO, "writing title")
 
-      format = '(a15, 1x, a15)'
-      do i = 1, size(employees)
-         write (Out, format, iostat=IO) employees(i)%surname, employees(i)%position
-         call Handle_IO_Status(IO, "writing employee " // i)
-      end do
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      write (Out, format, iostat=IO) (employees(i)%surname, employees(i)%position, i = 1, size(employees))
+      call Handle_IO_Status(IO, "writing employees")
 
       close (Out)
    end subroutine WriteEmployeesText

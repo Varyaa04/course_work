@@ -5,7 +5,7 @@ module Order_io
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
    integer, parameter :: EMPL_AMOUNT = 15, POS_AMOUNT = 5
    
-   !структура массивов(SoA)
+   !структура массивов (SoA - Structure of Arrays)
    type employees_soa
       character(SURNAME_LEN, kind=CH_) :: surnames(EMPL_AMOUNT)   !все фамилии
       character(POSITION_LEN, kind=CH_) :: positions(EMPL_AMOUNT)  !все должности
@@ -13,7 +13,7 @@ module Order_io
    
 contains
    
-   ! чтение списка сотрудников из текстового файла
+   ! чтение списка сотрудников из текстового файла (уже без явных циклов)
    subroutine Read_employees_list(Input_File, employees)
       character(*), intent(in) :: Input_File
       type(employees_soa), intent(out) :: employees
@@ -22,38 +22,42 @@ contains
       character(:), allocatable :: format
       
       open (file=Input_File, encoding=E_, newunit=In)
-         format = '(a15, 1x, a15)'
-         do i = 1, EMPL_AMOUNT
-            read(In, format, iostat=IO) employees%surnames(i), employees%positions(i)
-            call Handle_IO_status(IO, "reading formatted employees list, line " // i)
-         end do
+      format = '( a' // SURNAME_LEN // ', 1x, a'// POSITION_LEN // ')'
+      
+      ! Неявный цикл
+      read(In, format, iostat=IO) (employees%surnames(i), employees%positions(i), i = 1, EMPL_AMOUNT)
+      call Handle_IO_status(IO, "reading formatted employees list")
+      
       close (In)
    end subroutine Read_employees_list
    
-   ! создание неформатированного файла с сотрудниками
+   ! создание неформатированного файла с сотрудниками (без явных циклов)
    subroutine Create_employees_binary(Input_File, Binary_File)
       character(*), intent(in) :: Input_File, Binary_File
       
       type(employees_soa) :: employees
-      integer :: In, Out, IO, i, recl
+      integer :: In, Out, IO, recl, i
       character(:), allocatable :: format
       
       open (file=Input_File, encoding=E_, newunit=In)
       recl = (SURNAME_LEN + POSITION_LEN) * CH_ * EMPL_AMOUNT
       open (file=Binary_File, form='unformatted', newunit=Out, access='direct', recl=recl)
-         format = '(a15, 1x, a15)'
-         do i = 1, EMPL_AMOUNT
-            read(In, format, iostat=IO) employees%surnames(i), employees%positions(i)
-            call Handle_IO_status(IO, "reading formatted employees list, line " // i)
-         end do
-         
-         write(Out, iostat=IO, rec=1) employees
-         call Handle_IO_status(IO, "creating unformatted file with employees list")
+      
+      format = '(a' // SURNAME_LEN // ', 1x, a'// POSITION_LEN // ')'
+      
+      ! Неявный цикл для чтения всех сотрудников
+      read(In, format, iostat=IO) (employees%surnames(i), employees%positions(i), i = 1, EMPL_AMOUNT)
+      call Handle_IO_status(IO, "reading formatted employees list")
+      
+      ! Запись всего массива одной операцией
+      write(Out, iostat=IO, rec=1) employees
+      call Handle_IO_status(IO, "creating unformatted file with employees list")
+      
       close (In)
       close (Out)
    end subroutine Create_employees_binary
    
-   ! чтение сотрудников из бинарного файла
+   ! чтение сотрудников из бинарного файла (без циклов)
    function Read_employees_binary(Binary_File) result(employees)
       type(employees_soa) :: employees
       character(*), intent(in) :: Binary_File
@@ -62,12 +66,12 @@ contains
       
       recl = (SURNAME_LEN + POSITION_LEN) * CH_ * EMPL_AMOUNT
       open (file=Binary_File, form='unformatted', newunit=In, access='direct', recl=recl)
-         read(In, iostat=IO, rec=1) employees
-         call Handle_IO_status(IO, "reading unformatted employees list")
+      read(In, iostat=IO, rec=1) employees
+      call Handle_IO_status(IO, "reading unformatted employees list")
       close (In)
    end function Read_employees_binary
    
-   ! создание бинарного файла с должностями
+   ! создание бинарного файла с должностями (без явных циклов)
    subroutine Create_positions_binary(Pos_File, Binary_Pos_File)
       character(*), intent(in) :: Pos_File, Binary_Pos_File
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
@@ -76,18 +80,20 @@ contains
       open (file=Pos_File, encoding=E_, newunit=In)
       recl = POSITION_LEN * CH_ * POS_AMOUNT
       open (file=Binary_Pos_File, form='unformatted', newunit=Out, access='direct', recl=recl)
-         do i = 1, POS_AMOUNT
-            read(In, '(a)', iostat=IO) positions_rank(i)
-            call Handle_IO_status(IO, "reading position " // i)
-         end do
-         
-         write(Out, iostat=IO, rec=1) positions_rank
-         call Handle_IO_status(IO, "writing positions to binary file")
+      
+      ! Неявный цикл для чтения всех должностей
+      read(In, '(a)', iostat=IO) (positions_rank(i), i = 1, POS_AMOUNT)
+      call Handle_IO_status(IO, "reading positions")
+      
+      ! Запись всего массива одной операцией
+      write(Out, iostat=IO, rec=1) positions_rank
+      call Handle_IO_status(IO, "writing positions to binary file")
+      
       close (In)
       close (Out)
    end subroutine Create_positions_binary
    
-   ! чтение должностей из бинарного файла
+   ! чтение должностей из бинарного файла (без циклов)
    function Read_positions_binary(Binary_Pos_File) result(positions_rank)
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
       character(*), intent(in) :: Binary_Pos_File
@@ -96,12 +102,12 @@ contains
       
       recl = POSITION_LEN * CH_ * POS_AMOUNT
       open (file=Binary_Pos_File, form='unformatted', newunit=In, access='direct', recl=recl)
-         read(In, iostat=IO, rec=1) positions_rank
-         call Handle_IO_status(IO, "reading positions from binary file")
+      read(In, iostat=IO, rec=1) positions_rank
+      call Handle_IO_status(IO, "reading positions from binary file")
       close (In)
    end function Read_positions_binary
    
-   ! вывод списка сотрудников в текстовый файл
+   ! вывод списка сотрудников в текстовый файл (без явных циклов)
    subroutine Output_employees_list(Output_File, employees, List_name, Position)
       character(*), intent(in) :: Output_File, Position, List_name
       type(employees_soa), intent(in) :: employees
@@ -124,10 +130,10 @@ contains
       end if
       write(Out, '(a)', iostat=IO) List_name
       
-      format = '(a15, 1x, a15)'
-      do i = 1, EMPL_AMOUNT
-         write(Out, format, iostat=IO) employees%surnames(i), employees%positions(i)
-      end do
+      format = '(a' // SURNAME_LEN // ', 1x, a'// POSITION_LEN // ')'
+      
+      ! Неявный цикл для вывода всех сотрудников
+      write(Out, format, iostat=IO) (employees%surnames(i), employees%positions(i), i = 1, EMPL_AMOUNT)
       call Handle_IO_status(IO, "writing " // List_name)
       
       close(Out)

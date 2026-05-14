@@ -16,22 +16,21 @@ contains
       character(:), allocatable :: format
       
       open (file=input_file, encoding=E_, newunit=In)
-         format = '( 15a1, 1x, 15a1)'
+         format = '(' // SURNAME_LEN // 'a1, 1x, ' // POSITION_LEN // 'a1)'
          read (In, format, iostat=IO) (surnames(i, :), positions(i, :), i = 1, EMPL_AMOUNT)
          call Handle_IO_status(IO, "reading employees")
       close (In)
    end subroutine ReadEmpl
 
    !чтение должностей 
-   
-subroutine ReadPositions(positions_file, positions_rank)
+   subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(kind=CH_), intent(out) :: positions_rank(:, :)
       integer :: In, IO, i
       character(:), allocatable :: format
       
       open (file=positions_file, encoding=E_, newunit=In)
-         format = '( 15a1)'
+         format = '(' // POSITION_LEN //'a1)'
          read (In, format, iostat=IO) (positions_rank(i, :), i = 1, POS_AMOUNT)
          call Handle_IO_status(IO, "reading positions")
       close (In)
@@ -61,7 +60,7 @@ subroutine ReadPositions(positions_file, positions_rank)
       write(Out, '(a)', iostat=IO) title
       call Handle_IO_status(IO, "writing " // title)
    
-      format = '( 15a1, 1x, 15a1)'
+      format = '(' // SURNAME_LEN // 'a1, 1x, ' // POSITION_LEN // 'a1)'
       write(Out, format, iostat=IO) (surnames(i, :), positions(i, :), i = 1, EMPL_AMOUNT)
       call Handle_IO_status(IO, "writing employees")
 

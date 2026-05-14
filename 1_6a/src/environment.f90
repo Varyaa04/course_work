@@ -1,13 +1,14 @@
-module Environment
+module environment
    use ISO_Fortran_Env
 
    implicit none
     
-   integer, parameter      :: I_ = INT32
-   integer, parameter      :: R_ = REAL32
-   integer, parameter      :: C_ = R_
-   integer, parameter      :: CH_= Selected_Char_Kind("ISO_10646")
-   character(*), parameter :: E_ = 'UTF-8'
+   integer, parameter      :: I_ = INT32                             ! Разновидность типа для целочисленных переменных.
+   integer, parameter      :: R_ = REAL32                            ! Разновидность типа для вещественных переменных.
+   integer, parameter      :: C_ = R_                                ! Разновидность типа для компексных переменных.
+   integer, parameter      :: CH_= Selected_Char_Kind("ISO_10646")   ! Разновидность типа для символов.
+   ! integer, parameter      :: CH_= 1
+   character(*), parameter :: E_ = "UTF-8"                           ! Кодировка файлов.
 
    interface operator (//)
       module procedure Int_plus_string
@@ -16,22 +17,23 @@ module Environment
 
 contains
 
-   pure function Int_plus_string(int, str) result(res)
-      integer, intent(in)      :: int
-      character(*), intent(in) :: str
-      character(200)           :: res
-      
-      write(res, '(i0, a)') int, str
+   pure function Int_plus_string(i, str) result(res)
+      integer, intent(in)                                         :: i
+      character(*), intent(in)                                    :: str
+      character(len(str)+Max(Floor(Log10(Real(i, I_*2)))+1, 1)) :: res
+
+      write (res, '(i0, a)') i, str
    end function Int_plus_string
 
-   pure function String_plus_int(str, int) result(res)
-      character(*), intent(in) :: str
-      integer, intent(in)      :: int
-      character(200)           :: res
-      
-      write(res, '(a, i0)') str, int
+   pure function String_plus_int(str, i) result(res)
+      character(*), intent(in)                                    :: str
+      integer, intent(in)                                         :: i
+      character(len(str)+Max(Floor(Log10(Real(i, I_*2)))+1, 1)) :: res
+
+      write (res, '(a, i0)') str, i
    end function String_plus_int
 
+   ! Обработка статуса ввода/вывода.
    subroutine Handle_IO_status(IO, where)
       integer, intent(in)        :: IO
       character(*), intent(in)   :: where
@@ -44,5 +46,7 @@ contains
          case default
             write (ERROR_UNIT, '(a, i0)') "Undetermined behaviour has been reached while " // where // ": ", IO
       end select
+      ! close (Out) ! Если не OUTPUT_UNIT.
    end subroutine Handle_IO_status
-end module Environment
+
+end module environment
