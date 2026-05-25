@@ -1,13 +1,13 @@
 program main
    use Environment
-   use Sorting
    use Order_IO
+   use Sorting
    use omp_lib
    
    implicit none
    character(:), allocatable :: input_file, output_file, data_file, pos_file
    
-   type(employee), allocatable :: employees(:)
+   type(employees_soa) :: employees
    character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
    real(8) :: start_time, end_time
    
@@ -19,17 +19,21 @@ program main
    print *, "     СОРТИРОВКА СОТРУДНИКОВ"
    print *, ""
    
+   !создание бинарного файла 
    call Create_data_file(input_file, data_file)
    print *, "      Прочитано сотрудников: ", EMPL_AMOUNT
    
+   !чтение должностей
    call Read_positions(pos_file, positions_rank)
    print *, "      Прочитано должностей: ", POS_AMOUNT
    print *, ""
    
+   !чтение бинарного файла
    employees = Read_employee_list(data_file)
    
    call Output_employee_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
    
+   !сортировка
    start_time = omp_get_wtime()
    call Sort_employees(employees, positions_rank, EMPL_AMOUNT)
    end_time = omp_get_wtime()

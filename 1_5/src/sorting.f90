@@ -5,31 +5,32 @@ module Sorting
    
 contains
    
-   !cравнение должностей 
-   pure function Position_less(a, b, positions_rank) result(res)
-      character(POSITION_LEN, kind=CH_), intent(in) :: a, b
+   !сравнение должностей 
+   pure function Position_less(pos_a, pos_b, positions_rank) result(res)
+      character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical :: res
-      integer :: ra, rb
+      integer :: rank_a, rank_b
       
-      ra = findloc(positions_rank, a, dim=1)
-      rb = findloc(positions_rank, b, dim=1)
+      rank_a = findloc(positions_rank, pos_a, dim=1)
+      rank_b = findloc(positions_rank, pos_b, dim=1)
       
-      if (ra == 0 .or. rb == 0) then
+      if (rank_a == 0 .or. rank_b == 0) then
          res = .false.
       else
-         res = ra > rb  
+         res = rank_a > rank_b  
       end if
    end function Position_less
    
-   !сортировка чет-нечет и хвостовая рекурсия
+   !сортировка чет-нечет 
    recursive subroutine Sort_employees(employees, positions_rank, n)
-      type(employee), intent(inout) :: employees(:)
+      type(employees_soa), intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       integer, intent(in) :: n
       
       integer :: i
-      type(employee) :: tmp
+      character(SURNAME_LEN, kind=CH_) :: tmp_surname
+      character(POSITION_LEN, kind=CH_) :: tmp_position
       logical :: sorted
       
       if (n <= 1) return
@@ -37,30 +38,44 @@ contains
       sorted = .true.
       
       !четная фаза
-      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      !$omp parallel do reduction(.and.:sorted) private(tmp_surname, tmp_position)
       do i = 1, n-1, 2
-         if (Position_less(employees(i)%position, employees(i+1)%position, positions_rank)) then
-            tmp = employees(i)
-            employees(i) = employees(i+1)
-            employees(i+1) = tmp
+         if (Position_less(employees%positions(i), employees%positions(i+1), positions_rank)) then
+            !обмен фамилий
+            tmp_surname = employees%surnames(i)
+            employees%surnames(i) = employees%surnames(i+1)
+            employees%surnames(i+1) = tmp_surname
+            
+            !обмен должностей
+            tmp_position = employees%positions(i)
+            employees%positions(i) = employees%positions(i+1)
+            employees%positions(i+1) = tmp_position
+            
             sorted = .false.
          end if
       end do
       !$omp end parallel do
       
       !нечетная фаза
-      !$omp parallel do private(tmp) reduction(.and.:sorted)
+      !$omp parallel do reduction(.and.:sorted) private(tmp_surname, tmp_position)
       do i = 2, n-1, 2
-         if (Position_less(employees(i)%position, employees(i+1)%position, positions_rank)) then
-            tmp = employees(i)
-            employees(i) = employees(i+1)
-            employees(i+1) = tmp
+         if (Position_less(employees%positions(i), employees%positions(i+1), positions_rank)) then
+            !обмен фамилий
+            tmp_surname = employees%surnames(i)
+            employees%surnames(i) = employees%surnames(i+1)
+            employees%surnames(i+1) = tmp_surname
+            
+            !обмен должностей
+            tmp_position = employees%positions(i)
+            employees%positions(i) = employees%positions(i+1)
+            employees%positions(i+1) = tmp_position
+            
             sorted = .false.
          end if
       end do
-      !$omp end parallel do
+      !$omp end parallel do 
       
-      !хвостовая рекурсия: если не отсортирован, повторяем
+      !хвостовая рекурсия
       if (.not. sorted) then
          call Sort_employees(employees, positions_rank, n)
       end if

@@ -8,7 +8,6 @@ program main
    character(kind=CH_), allocatable :: surnames(:, :), positions(:, :), positions_rank(:, :)
    character(:), allocatable :: input_file, output_file, pos_file
    real(8) :: start_time, end_time
-   integer, parameter :: SIMD_LEN = 32
    integer :: i
    
    input_file = "../data/input_file.txt"

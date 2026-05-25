@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:a5eee0e83ed7b51f
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:8b786263a0ec7d19
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,11 +98,11 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=15_4
+integer(4),parameter::empl_amount=102_4
 integer(4),parameter::pos_amount=5_4
-type::employee
-character(15_4,4)::surname=4_"               "
-character(15_4,4)::position=4_"               "
+type::employees_soa
+character(15_4,4)::surnames(1_8:102_8)
+character(15_4,4)::positions(1_8:102_8)
 end type
 contains
 subroutine create_data_file(input_file,data_file)
@@ -111,7 +111,7 @@ character(*,1),intent(in)::data_file
 end
 function read_employee_list(data_file) result(employees)
 character(*,1),intent(in)::data_file
-type(employee),allocatable::employees(:)
+type(employees_soa)::employees
 end
 subroutine read_positions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
@@ -119,7 +119,7 @@ character(15_4,4),intent(out)::positions_rank(1_8:5_8)
 end
 subroutine output_employee_list(output_file,employees,list_name,position)
 character(*,1),intent(in)::output_file
-type(employee),intent(in)::employees(:)
+type(employees_soa),intent(in)::employees
 character(*,1),intent(in)::list_name
 character(*,1),intent(in)::position
 end

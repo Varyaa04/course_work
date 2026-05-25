@@ -2,10 +2,11 @@ module Order_IO
    use Environment
    implicit none
    
-   integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 15, POS_AMOUNT = 5
+   integer, parameter :: SURNAME_LEN = 15
+   integer, parameter :: POSITION_LEN = 15
+   integer, parameter :: EMPL_AMOUNT = 102
+   integer, parameter :: POS_AMOUNT = 5
    
-   ! ОДНОНАПРАВЛЕННЫЙ СПИСОК
    type employee
       character(SURNAME_LEN, kind=CH_)   :: surname  = ""
       character(POSITION_LEN, kind=CH_)  :: position = ""
@@ -13,131 +14,78 @@ module Order_IO
    end type employee
    
 contains
-   
-   ! Чтение списка сотрудников из форматированного файла
-   function Read_employee_list(Input_File) result(empl)
-      type(employee), pointer :: empl
-      character(*), intent(in) :: Input_File
-      integer :: In, i
+   !чтение списка сотрудников 
+   function Read_employee_list(Input_File) result(empl_list)
+      type(employee), pointer     :: empl_list
+      character(*), intent(in)    :: Input_File
+      integer                     :: In
       
-      open(file=Input_File, encoding=E_, newunit=In)
-      
-      ! Чтение первого сотрудника
-      allocate(empl)
-      call Read_employee_data(In, empl, 1)
-      
-      ! Чтение остальных сотрудников (ХВОСТОВАЯ РЕКУРСИЯ)
-      call Read_remaining_employees(In, empl, 2)
-      close(In)
-
-      contains
-      ! Чтение данных одного сотрудника
-         subroutine Read_employee_data(In, emp, num)
-            integer, intent(in) :: In, num
-            type(employee), intent(inout) :: emp
-            integer :: IO
-            character(:), allocatable :: format
-            
-            format = '(a15, 1x, a15)'
-            read(In, format, iostat=IO) emp%surname, emp%position
-            call Handle_IO_status(IO, "reading employee " // num)
-         end subroutine Read_employee_data
+      open (file=Input_File, encoding=E_, newunit=In)
+         empl_list => Read_employee(In)
+      close (In)
    end function Read_employee_list
    
-  
-   
-   ! ХВОСТОВАЯ РЕКУРСИЯ: чтение оставшихся сотрудников
-   recursive subroutine Read_remaining_employees(In, prev, num)
-      integer, intent(in) :: In, num
-      type(employee), pointer, intent(in) :: prev
+   !чтение следующего сотрудника
+   recursive function Read_employee(In) result(empl)
+      type(employee), pointer  :: empl
+      integer, intent(in)      :: In
+      integer                  :: IO
+      character(:), allocatable :: format
       
-      if (num > EMPL_AMOUNT) then
-         prev%next => Null()
-         return
+      allocate (empl)
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      read (In, format, iostat=IO) empl%surname, empl%position
+      call Handle_IO_status(IO, "reading line from file")
+      if (IO == 0) then
+         empl%next => Read_employee(In)
+      else
+         deallocate (empl)
+         empl => Null()
       end if
-      
-      allocate(prev%next)
-      call Read_employee_data(In, prev%next, num)
-      
-      ! ХВОСТОВАЯ РЕКУРСИЯ
-      call Read_remaining_employees(In, prev%next, num + 1)
-   end subroutine Read_remaining_employees
+   end function Read_employee
    
-   ! Чтение ранга должностей
+   !чтение ранга должностей
    subroutine Read_positions(positions_file, positions_rank)
-      character(*), intent(in) :: positions_file
+      character(*), intent(in)                     :: positions_file
       character(POSITION_LEN, kind=CH_), intent(out) :: positions_rank(POS_AMOUNT)
+      integer                                      :: In, IO, i
       
-      integer :: In, IO, i
-      
-      open(file=positions_file, encoding=E_, newunit=In, iostat=IO)
+      open (file=positions_file, encoding=E_, newunit=In, iostat=IO)
       call Handle_IO_status(IO, "opening positions file")
       
       do i = 1, POS_AMOUNT
-         read(In, '(a)', iostat=IO) positions_rank(i)
+         read (In, '(a)', iostat=IO) positions_rank(i)
          call Handle_IO_status(IO, "reading position rank, line " // i)
       end do
       
-      close(In)
+      close (In)
    end subroutine Read_positions
    
-   ! Получение ранга должности (ЦИКЛ вместо findloc)
-   pure function Get_position_rank(position, positions_rank) result(rank)
-      character(POSITION_LEN, kind=CH_), intent(in) :: position
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer :: rank
-      integer :: i
+   !вывод списка сотрудников
+   subroutine Output_employee_list(Output_File, empl_list, List_Name, Position)
+      character(*), intent(in)   :: Output_File, Position, List_Name
+      type(employee), intent(in) :: empl_list
+      integer                    :: Out
       
-      rank = 0
-      do i = 1, size(positions_rank)
-         if (positions_rank(i) == position) then
-            rank = i
-            exit
-         end if
-      end do
-   end function Get_position_rank
-   
-   ! Вывод списка сотрудников
-   subroutine Output_employee_list(Output_File, head, List_Name, Position)
-      character(*), intent(in) :: Output_File, Position, List_Name
-      type(employee), pointer, intent(in) :: head
-      integer :: Out
-      
-      open(file=Output_File, position=Position, newunit=Out)
-      write(Out, '(/a)') List_Name
-      
-      ! ХВОСТОВАЯ РЕКУРСИЯ для вывода
-      call Output_employee(Out, head)
-      
-      close(Out)
+      open (file=Output_File, encoding=E_, position=Position, newunit=Out)
+         write (Out, '(/a)') List_Name
+         call Output_employee(Out, empl_list)
+      close (Out)
    end subroutine Output_employee_list
    
-   ! ХВОСТОВАЯ РЕКУРСИЯ: вывод сотрудников
-   recursive subroutine Output_employee(Out, emp)
-      integer, intent(in) :: Out
-      type(employee), pointer, intent(in) :: emp
-      integer :: IO
-      character(:), allocatable :: format
+   !вывод следующего сотрудника
+   recursive subroutine Output_employee(Out, empl)
+      integer, intent(in)        :: Out
+      type(employee), intent(in) :: empl
+      integer                    :: IO
+      character(:), allocatable  :: format
       
-      if (.not. Associated(emp)) return
-      
-      format = '(a15, 1x, a15)'
-      write(Out, format, iostat=IO) emp%surname, emp%position
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      write (Out, format, iostat=IO) empl%surname, empl%position
       call Handle_IO_status(IO, "writing employee")
-      
-      ! ХВОСТОВАЯ РЕКУРСИЯ
-      call Output_employee(Out, emp%next)
+      if (Associated(empl%next)) &
+         call Output_employee(Out, empl%next)
    end subroutine Output_employee
    
-   ! Освобождение памяти списка (ХВОСТОВАЯ РЕКУРСИЯ)
-   recursive subroutine Free_employee_list(emp)
-      type(employee), pointer :: emp
-      
-      if (Associated(emp)) then
-         call Free_employee_list(emp%next)
-         deallocate(emp)
-         emp => Null()
-      end if
-   end subroutine Free_employee_list
    
 end module Order_IO

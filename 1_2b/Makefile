@@ -1,10 +1,16 @@
 FC = flang
-FFLAGS = -fimplicit-none -fopenmp -O3  -march=native
+FFLAGS_BASE = -fimplicit-none -O3 -march=native -fvectorize -fstack-arrays
+#openmp флаги с версией 5.1 (поддержка align в allocate)
+OMP_FLAGS = -fopenmp -fopenmp-version=51
+#оптимизационные флаги
+OPT_FLAGS = -funroll-loops -ftree-vectorize
+#полные флаги
+FFLAGS = $(FFLAGS_BASE) $(OMP_FLAGS) $(OPT_FLAGS)
 
-OMP_ROOT = /usr/lib/llvm-19
-OMP_LIB = -L$(OMP_ROOT)/lib -lomp
-#OMP_ROOT=/opt/homebrew/opt/libomp
-#OMP_LIB=-L$(OMP_ROOT)/lib -lomp
+#OMP_ROOT = /usr/lib/llvm-19
+#OMP_LIB = -L$(OMP_ROOT)/lib -lomp
+OMP_ROOT=/opt/homebrew/opt/libomp
+OMP_LIB=-L$(OMP_ROOT)/lib -lomp
 OMP_INC = -I$(OMP_ROOT)/include
 
 all: obj bin
@@ -14,13 +20,6 @@ all: obj bin
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/main.f90 -I obj -o obj/main.o
 	$(FC) $(FFLAGS) -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o $(OMP_LIB)
 
-check-vec: obj
-	$(FC) $(FFLAGS) $(OMP_INC) -c src/environment.f90 -J obj -o obj/environment.o
-	$(FC) $(FFLAGS) $(OMP_INC) -c src/order_io.f90 -J obj -o obj/order_io.o
-	$(FC) $(FFLAGS) $(OMP_INC) -S src/sorting.f90 -J obj -o sorting.s
-	@echo "=== Поиск SIMD инструкций ==="
-	@grep -E "ldr.*q[0-9]|str.*q[0-9]|fadd.*v|fmul.*v" sorting.s || echo "SIMD инструкции не найдены для SURNAME_LEN=15"
-	@echo "=== Готово ==="
 
 obj:
 	mkdir -p obj

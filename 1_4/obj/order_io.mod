@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:b64130a1dc60961f
-!need$ ea6dd147e57435bd n environment
+﻿!mod$ v1 sum:6c1c03a152197b61
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,11 +98,11 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=15_4
+integer(4),parameter::empl_amount=102_4
 integer(4),parameter::pos_amount=5_4
 type::employees_soa
-character(15_4,4)::surnames(1_8:15_8)
-character(15_4,4)::positions(1_8:15_8)
+character(15_4,4)::surnames(1_8:102_8)
+character(15_4,4)::positions(1_8:102_8)
 end type
 contains
 subroutine read_employees_list(input_file,employees)

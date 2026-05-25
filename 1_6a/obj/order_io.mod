@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:d1f635917d96a344
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:cd64fbaa79ebf3d7
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,7 +98,7 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=15_4
+integer(4),parameter::empl_amount=102_4
 integer(4),parameter::pos_amount=5_4
 type::employee
 character(15_4,4)::surname=4_"               "
@@ -107,35 +107,26 @@ type(employee),pointer::next=>NULL()
 end type
 intrinsic::null
 contains
-function read_employee_list(input_file) result(empl)
+function read_employee_list(input_file) result(empl_list)
 character(*,1),intent(in)::input_file
-type(employee),pointer::empl
+type(employee),pointer::empl_list
 end
-recursive subroutine read_remaining_employees(in,prev,num)
+recursive function read_employee(in) result(empl)
 integer(4),intent(in)::in
-type(employee),intent(in),pointer::prev
-integer(4),intent(in)::num
+type(employee),pointer::empl
 end
 subroutine read_positions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
 character(15_4,4),intent(out)::positions_rank(1_8:5_8)
 end
-pure function get_position_rank(position,positions_rank) result(rank)
-character(15_4,4),intent(in)::position
-character(15_4,4),intent(in)::positions_rank(:)
-integer(4)::rank
-end
-subroutine output_employee_list(output_file,head,list_name,position)
+subroutine output_employee_list(output_file,empl_list,list_name,position)
 character(*,1),intent(in)::output_file
-type(employee),intent(in),pointer::head
+type(employee),intent(in)::empl_list
 character(*,1),intent(in)::list_name
 character(*,1),intent(in)::position
 end
-recursive subroutine output_employee(out,emp)
+recursive subroutine output_employee(out,empl)
 integer(4),intent(in)::out
-type(employee),intent(in),pointer::emp
-end
-recursive subroutine free_employee_list(emp)
-type(employee),pointer::emp
+type(employee),intent(in)::empl
 end
 end

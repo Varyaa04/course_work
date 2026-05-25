@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:c5104b0e37d93b2f
-!need$ a5eee0e83ed7b51f n order_io
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:f4964c6362cf169f
+!need$ 8b786263a0ec7d19 n order_io
+!need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -101,20 +101,20 @@ use order_io,only:surname_len
 use order_io,only:position_len
 use order_io,only:empl_amount
 use order_io,only:pos_amount
-use order_io,only:employee
+use order_io,only:employees_soa
 use order_io,only:create_data_file
 use order_io,only:read_employee_list
 use order_io,only:read_positions
 use order_io,only:output_employee_list
 contains
-pure function position_less(a,b,positions_rank) result(res)
-character(15_4,4),intent(in)::a
-character(15_4,4),intent(in)::b
+pure function position_less(pos_a,pos_b,positions_rank) result(res)
+character(15_4,4),intent(in)::pos_a
+character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
 recursive subroutine sort_employees(employees,positions_rank,n)
-type(employee),intent(inout)::employees(:)
+type(employees_soa),intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
 integer(4),intent(in)::n
 end

@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:21f65eb50b121cf5
-!need$ 3cf0eeb534f65b5f n order_io
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:4307e6de0d541a3f
+!need$ 170d91baa35d5436 n order_io
+!need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -105,13 +105,8 @@ use order_io,only:employee
 use order_io,only:read_employee_list
 use order_io,only:read_employee_tail
 use order_io,only:read_positions
-use order_io,only:get_position_rank
-use order_io,only:count_employees
 use order_io,only:output_employee_list
 use order_io,only:output_employee_tail
-use order_io,only:free_employee_list
-use order_io,only:list_to_array
-use order_io,only:array_to_list
 contains
 pure function position_less(pos1,pos2,positions_rank) result(res)
 character(15_4,4),intent(in)::pos1
@@ -124,19 +119,14 @@ type(employee),allocatable,intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
 integer(4),intent(in)::n
 end
-recursive subroutine sort_employee_list_direct(employees,positions_rank,n)
-type(employee),allocatable,intent(inout)::employees
-character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::n
-end
-recursive subroutine odd_phase_direct(current,positions_rank,pos,n,sorted)
+recursive subroutine odd_phase(current,positions_rank,pos,n,sorted)
 type(employee),allocatable,intent(inout)::current
 character(15_4,4),intent(in)::positions_rank(:)
 integer(4),intent(in)::pos
 integer(4),intent(in)::n
 logical(4),intent(inout)::sorted
 end
-recursive subroutine even_phase_direct(current,positions_rank,pos,n,sorted)
+recursive subroutine even_phase(current,positions_rank,pos,n,sorted)
 type(employee),allocatable,intent(inout)::current
 character(15_4,4),intent(in)::positions_rank(:)
 integer(4),intent(in)::pos

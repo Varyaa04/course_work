@@ -35,6 +35,7 @@ program main
 
    call Output_employees_list(output_file, employees, "ИСХОДНЫЙ СПИСОК:", "rewind")
 
+   !сортировка
    start_time = omp_get_wtime()
    call SortEmployees(employees, positions_rank)
    end_time = omp_get_wtime()

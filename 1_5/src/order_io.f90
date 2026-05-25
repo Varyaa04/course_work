@@ -2,64 +2,72 @@ module Order_IO
    use Environment
    implicit none
    
-   integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 15, POS_AMOUNT = 5
+   integer, parameter :: SURNAME_LEN = 15
+   integer, parameter :: POSITION_LEN = 15
+   integer, parameter :: EMPL_AMOUNT = 102
+   integer, parameter :: POS_AMOUNT = 5
    
-   !массив структур
-   type employee
-      character(SURNAME_LEN, kind=CH_)   :: surname  = ""
-      character(POSITION_LEN, kind=CH_)  :: position = ""
-   end type employee
+   ! Структура массивов (SoA) - сплошные данные
+   type employees_soa
+      character(SURNAME_LEN, kind=CH_)   :: surnames(EMPL_AMOUNT)
+      character(POSITION_LEN, kind=CH_)  :: positions(EMPL_AMOUNT)
+   end type employees_soa
    
 contains
    
-   !создание неформатированного файла 
+   ! Создание неформатированного файла
    subroutine Create_data_file(Input_File, Data_File)
       character(*), intent(in) :: Input_File, Data_File
       
       integer :: In, Out, IO, i, recl
       character(:), allocatable :: format
-      type(employee) :: employees(EMPL_AMOUNT)  
+      type(employees_soa) :: employees
       
       open(file=Input_File, encoding=E_, newunit=In, iostat=IO)
       call Handle_IO_status(IO, "opening input file")
       
-      format = '(a15, 1x, a15)'
-      read(In, format, iostat=IO) (employees(i)%surname, employees(i)%position, i = 1, EMPL_AMOUNT)
-      call Handle_IO_status(IO, "reading formatted file")
+      ! Формат с конкатенацией как в прошлом проекте
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      
+      do i = 1, EMPL_AMOUNT
+         read(In, format, iostat=IO) employees%surnames(i), employees%positions(i)
+         call Handle_IO_status(IO, "reading employee line " // i)
+      end do
       close(In)
       
+      ! Запись в бинарный файл
       recl = (SURNAME_LEN + POSITION_LEN) * CH_
       open(file=Data_File, form='unformatted', newunit=Out, access='direct', recl=recl, iostat=IO)
       call Handle_IO_status(IO, "opening direct access file for writing")
       
       do i = 1, EMPL_AMOUNT
-         write(Out, iostat=IO, rec=i) employees(i)
+         write(Out, iostat=IO, rec=i) employees%surnames(i), employees%positions(i)
          call Handle_IO_status(IO, "writing binary file, record " // i)
       end do
       
       close(Out)
    end subroutine Create_data_file
    
-   !чтение списка сотрудников из неформатированного файла 
+   ! Чтение списка сотрудников из неформатированного файла
    function Read_employee_list(Data_File) result(employees)
-      type(employee), allocatable :: employees(:)
+      type(employees_soa) :: employees
       character(*), intent(in) :: Data_File
       
-      integer :: In, IO, recl
+      integer :: In, IO, i, recl
       
-      allocate(employees(EMPL_AMOUNT))
-      recl = (SURNAME_LEN + POSITION_LEN) * CH_ * EMPL_AMOUNT
+      recl = (SURNAME_LEN + POSITION_LEN) * CH_
       open(file=Data_File, form='unformatted', newunit=In, access='direct', recl=recl, iostat=IO)
       call Handle_IO_status(IO, "opening direct access file for reading")
       
-      read(In, iostat=IO, rec=1) employees
-      call Handle_IO_status(IO, "reading binary file")
+      do i = 1, EMPL_AMOUNT
+         read(In, iostat=IO, rec=i) employees%surnames(i), employees%positions(i)
+         call Handle_IO_status(IO, "reading binary file, record " // i)
+      end do
       
       close(In)
    end function Read_employee_list
    
-   !чтение  должностей
+   ! Чтение должностей из текстового файла
    subroutine Read_positions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(POSITION_LEN, kind=CH_), intent(out) :: positions_rank(POS_AMOUNT)
@@ -77,23 +85,35 @@ contains
       close(In)
    end subroutine Read_positions
    
-   !вывод списка 
+   ! Вывод списка сотрудников
    subroutine Output_employee_list(Output_File, employees, List_name, Position)
       character(*), intent(in) :: Output_File, Position, List_name
-      type(employee), intent(in) :: employees(:)
+      type(employees_soa), intent(in) :: employees
       
       integer :: Out, IO, i
       character(:), allocatable :: format
+      logical :: file_exists
       
-      open(file=Output_File, position=Position, newunit=Out, iostat=IO)
+      inquire(file=Output_File, exist=file_exists)
+      
+      if (Position == 'append' .and. file_exists) then
+         open(file=Output_File, position='append', newunit=Out, iostat=IO)
+      else
+         open(file=Output_File, newunit=Out, iostat=IO)
+      end if
       call Handle_IO_status(IO, "opening output file")
       
+      if (file_exists .and. Position == 'append') then
+         write(Out, '(a)', iostat=IO) ""
+      end if
       write(Out, '(/a)', iostat=IO) List_name
       call Handle_IO_status(IO, "writing " // List_name // " title")
       
-      format = '(a15, 1x, a15)'
-      do i = 1, size(employees)
-         write(Out, format, iostat=IO) employees(i)%surname, employees(i)%position
+      ! Формат с конкатенацией как в прошлом проекте
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      
+      do i = 1, EMPL_AMOUNT
+         write(Out, format, iostat=IO) employees%surnames(i), employees%positions(i)
          call Handle_IO_status(IO, "writing employee, line " // i)
       end do
       

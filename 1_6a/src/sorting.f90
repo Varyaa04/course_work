@@ -5,111 +5,106 @@ module Sorting
    
 contains
    
-   ! Сравнение должностей согласно рангу
-   pure function Position_less(a, b, positions_rank) result(res)
-      character(POSITION_LEN, kind=CH_), intent(in) :: a, b
+   !сравнение должностей 
+   pure function Position_less(pos_a, pos_b, positions_rank) result(res)
+      character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical :: res
-      integer :: ra, rb
+      integer :: rank_a, rank_b, i
       
-      ra = Get_position_rank(a, positions_rank)
-      rb = Get_position_rank(b, positions_rank)
+      !поиск для pos_a
+      rank_a = 0
+      do i = 1, size(positions_rank)
+         if (positions_rank(i) == pos_a) then
+            rank_a = i
+            exit
+         end if
+      end do
       
-      if (ra == 0 .or. rb == 0) then
+      !поиск для pos_b
+      rank_b = 0
+      do i = 1, size(positions_rank)
+         if (positions_rank(i) == pos_b) then
+            rank_b = i
+            exit
+         end if
+      end do
+      
+      if (rank_a == 0 .or. rank_b == 0) then
          res = .false.
       else
-         res = ra > rb
+         res = rank_a > rank_b
       end if
    end function Position_less
    
-   ! ЧЁТ-НЕЧЕТ СОРТИРОВКА для однонаправленного списка
+   !чет-нечет сортировка 
    recursive subroutine Sort_employee_list(employees, positions_rank)
       type(employee), pointer, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
       logical :: sorted
-      integer :: i
-      
-      if (.not. Associated(employees)) return
-      if (.not. Associated(employees%next)) return
-      
-      sorted = .true.
-      
-      ! ЧЁТНАЯ ФАЗА: сравниваем пары (1,2), (3,4), (5,6)...
-      call Odd_phase(employees, positions_rank, 1, sorted)
-      
-      ! НЕЧЁТНАЯ ФАЗА: сравниваем пары (2,3), (4,5), (6,7)...
-      if (Associated(employees%next)) then
-         call Even_phase(employees%next, positions_rank, 2, sorted)
-      end if
-      
-      ! ХВОСТОВАЯ РЕКУРСИЯ
-      if (.not. sorted) then
-         call Sort_employee_list(employees, positions_rank)
-      end if
-   end subroutine Sort_employee_list
-   
-   ! ЧЁТНАЯ ФАЗА: обход с шагом 2, начиная с позиции 1
-   recursive subroutine Odd_phase(current, positions_rank, pos, sorted)
       type(employee), pointer :: current
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: pos
-      logical, intent(inout) :: sorted
-      
-      if (.not. Associated(current)) return
-      if (.not. Associated(current%next)) return
-      if (pos >= EMPL_AMOUNT) return
-      
-      ! Сравниваем и меняем данные (не указатели!)
-      if (Position_less(current%position, current%next%position, positions_rank)) then
-         call Swap_data(current, current%next)
-         sorted = .false.
-      end if
-      
-      ! Переходим к следующей паре (через один узел)
-      if (Associated(current%next%next)) then
-         call Odd_phase(current%next%next, positions_rank, pos + 2, sorted)
-      end if
-   end subroutine Odd_phase
-   
-   ! НЕЧЁТНАЯ ФАЗА: обход с шагом 2, начиная с позиции 2
-   recursive subroutine Even_phase(current, positions_rank, pos, sorted)
-      type(employee), pointer :: current
-      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      integer, intent(in) :: pos
-      logical, intent(inout) :: sorted
-      
-      if (.not. Associated(current)) return
-      if (.not. Associated(current%next)) return
-      if (pos >= EMPL_AMOUNT) return
-      
-      ! Сравниваем и меняем данные (не указатели!)
-      if (Position_less(current%position, current%next%position, positions_rank)) then
-         call Swap_data(current, current%next)
-         sorted = .false.
-      end if
-      
-      ! Переходим к следующей паре (через один узел)
-      if (Associated(current%next%next)) then
-         call Even_phase(current%next%next, positions_rank, pos + 2, sorted)
-      end if
-   end subroutine Even_phase
-   
-   ! Обмен данными между двумя узлами (меняем содержимое, а не указатели)
-   pure subroutine Swap_data(node1, node2)
-      type(employee), intent(inout) :: node1, node2
-      
       character(SURNAME_LEN, kind=CH_) :: tmp_surname
       character(POSITION_LEN, kind=CH_) :: tmp_position
       
-      tmp_surname = node1%surname
-      tmp_position = node1%position
+      if (.not. associated(employees)) return
+      if (.not. associated(employees%next)) return
       
-      node1%surname = node2%surname
-      node1%position = node2%position
+      sorted = .true.
       
-      node2%surname = tmp_surname
-      node2%position = tmp_position
-   end subroutine Swap_data
+      !четная фаза
+      current => employees
+      do while (associated(current) .and. associated(current%next))
+         if (Position_less(current%position, current%next%position, positions_rank)) then
+            !обмен данными
+            tmp_surname = current%surname
+            tmp_position = current%position
+            
+            current%surname = current%next%surname
+            current%position = current%next%position
+            
+            current%next%surname = tmp_surname
+            current%next%position = tmp_position
+            
+            sorted = .false.
+         end if
+         if (associated(current%next%next)) then
+            current => current%next%next
+         else
+            exit
+         end if
+      end do
+      
+      !нечетная фаза
+      if (associated(employees%next)) then
+         current => employees%next
+         do while (associated(current) .and. associated(current%next))
+            if (Position_less(current%position, current%next%position, positions_rank)) then
+               !обмен данными
+               tmp_surname = current%surname
+               tmp_position = current%position
+               
+               current%surname = current%next%surname
+               current%position = current%next%position
+               
+               current%next%surname = tmp_surname
+               current%next%position = tmp_position
+               
+               sorted = .false.
+            end if
+            if (associated(current%next%next)) then
+               current => current%next%next
+            else
+               exit
+            end if
+         end do
+      end if
+      
+      !хвостовая рекурсия
+      if (.not. sorted) then
+         call Sort_employee_list(employees, positions_rank)
+      end if
+      
+   end subroutine Sort_employee_list
    
 end module Sorting

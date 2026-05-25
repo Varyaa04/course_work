@@ -15,14 +15,10 @@ contains
       rank_a = findloc(positions_rank, pos_a, dim=1)
       rank_b = findloc(positions_rank, pos_b, dim=1)
       
-      if (rank_a == 0 .or. rank_b == 0) then
-         res = .false.
-      else
-         res = rank_a < rank_b
-      end if
+      res = (rank_a /= 0 .and. rank_b /= 0 .and. rank_a < rank_b)
    end function PositionLess
    
-   ! сортировка чёт-нечет для структуры массивов
+   !cортировка чет-нечет
    subroutine SortEmployees(employees, positions_rank)
       type(employees_soa), intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -38,16 +34,16 @@ contains
       do while (.not. sorted)
          sorted = .true.
          
-         !чётная фаза
-         !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
+         !четная фаза 
+         !$omp parallel do  reduction(.and.:sorted) private(tmp_surname, tmp_position)
          do i = 1, n-1, 2
             if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
-               !меняем местами фамилии
+               !обмен фамилий
                tmp_surname = employees%surnames(i)
                employees%surnames(i) = employees%surnames(i+1)
                employees%surnames(i+1) = tmp_surname
                
-               !меняем местами должности
+               !обмен должностей
                tmp_position = employees%positions(i)
                employees%positions(i) = employees%positions(i+1)
                employees%positions(i+1) = tmp_position
@@ -55,18 +51,18 @@ contains
                sorted = .false.
             end if
          end do
-         !$omp end parallel do
+         !$omp end parallel do 
          
-         !нечётная фаза
-         !$omp parallel do private(tmp_surname, tmp_position) reduction(.and.:sorted)
+         !нечетная фаза
+         !$omp parallel do  reduction(.and.:sorted) private(tmp_surname, tmp_position)
          do i = 2, n-1, 2
             if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
-               !меняем местами фамилии
+               !обмен фамилий
                tmp_surname = employees%surnames(i)
                employees%surnames(i) = employees%surnames(i+1)
                employees%surnames(i+1) = tmp_surname
                
-               !меняем местами должности
+               !обмен должностей
                tmp_position = employees%positions(i)
                employees%positions(i) = employees%positions(i+1)
                employees%positions(i+1) = tmp_position
@@ -74,7 +70,7 @@ contains
                sorted = .false.
             end if
          end do
-         !$omp end parallel do
+         !$omp end parallel do 
          
       end do
       

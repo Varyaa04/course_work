@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:f406cb7bb98cae96
-!need$ d1f635917d96a344 n order_io
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:f64128cb80c55fd9
+!need$ cd64fbaa79ebf3d7 n order_io
+!need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -104,37 +104,19 @@ use order_io,only:pos_amount
 use order_io,only:employee
 use order_io,only:null
 use order_io,only:read_employee_list
-use order_io,only:read_remaining_employees
+use order_io,only:read_employee
 use order_io,only:read_positions
-use order_io,only:get_position_rank
 use order_io,only:output_employee_list
 use order_io,only:output_employee
-use order_io,only:free_employee_list
 contains
-pure function position_less(a,b,positions_rank) result(res)
-character(15_4,4),intent(in)::a
-character(15_4,4),intent(in)::b
+pure function position_less(pos_a,pos_b,positions_rank) result(res)
+character(15_4,4),intent(in)::pos_a
+character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
 recursive subroutine sort_employee_list(employees,positions_rank)
 type(employee),intent(inout),pointer::employees
 character(15_4,4),intent(in)::positions_rank(:)
-end
-recursive subroutine odd_phase(current,positions_rank,pos,sorted)
-type(employee),pointer::current
-character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::pos
-logical(4),intent(inout)::sorted
-end
-recursive subroutine even_phase(current,positions_rank,pos,sorted)
-type(employee),pointer::current
-character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::pos
-logical(4),intent(inout)::sorted
-end
-pure subroutine swap_data(node1,node2)
-type(employee),intent(inout)::node1
-type(employee),intent(inout)::node2
 end
 end

@@ -32,7 +32,7 @@ contains
       if (pos_a == 0 .or. pos_b == 0) then
          res = .false.
       else
-         res = pos_a < pos_b
+         res = pos_a > pos_b 
       end if
       
    end function PositionLess
@@ -46,8 +46,11 @@ contains
       character(kind=CH_), allocatable :: tmp_s(:), tmp_p(:)
       
       n = size(surnames, 2)
-      !$omp allocate aligned!!!
+      
+      !выравнивание 
+      !$omp allocate(tmp_s) align(64)
       allocate(tmp_s(SURNAME_LEN))
+      !$omp allocate(tmp_p) align(64)
       allocate(tmp_p(POSITION_LEN))
       
       sorted = .false.
@@ -55,15 +58,13 @@ contains
       do while (.not. sorted)
          sorted = .true.
          
-         ! Чётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !чётная фаза 
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted) &
+         !$omp shared(surnames, positions, positions_rank)
          do j = 1, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
                !обмен фамилиями 
                !$omp simd aligned(surnames, tmp_s:32)
-               !каждую строчку явным циклом
-               !при размещении surnames allocate aligned 
-               !fomp -simd fomp -allocators 
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
                   surnames(k, j) = surnames(k, j+1)
@@ -71,7 +72,7 @@ contains
                end do
                !$omp end simd
 
-               !обмен должностями
+               !обмен должностями 
                !$omp simd aligned(positions, tmp_p:32)
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)
@@ -86,10 +87,11 @@ contains
          !$omp end parallel do
 
          !нечётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted) &
+         !$omp shared(surnames, positions, positions_rank)
          do j = 2, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
-               !обмен фамилиями
+               !обмен фамилиями 
                !$omp simd aligned(surnames, tmp_s:32)
                do k = 1, SURNAME_LEN
                   tmp_s(k) = surnames(k, j)
@@ -98,7 +100,7 @@ contains
                end do
                !$omp end simd
 
-               !обмен должностями
+               !обмен должностями 
                !$omp simd aligned(positions, tmp_p:32)
                do k = 1, POSITION_LEN
                   tmp_p(k) = positions(k, j)

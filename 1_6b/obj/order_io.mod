@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:3cf0eeb534f65b5f
-!need$ cf5f96939bb5da86 n environment
+﻿!mod$ v1 sum:170d91baa35d5436
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,7 +98,7 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=15_4
+integer(4),parameter::empl_amount=102_4
 integer(4),parameter::pos_amount=5_4
 type::employee
 character(15_4,4)::surname=4_"               "
@@ -110,24 +110,14 @@ function read_employee_list(input_file) result(employees)
 character(*,1),intent(in)::input_file
 type(employee),allocatable::employees
 end
-recursive subroutine read_employee_tail(in,emp,count)
+recursive subroutine read_employee_tail(in,emp,num)
 integer(4),intent(in)::in
 type(employee),allocatable,intent(inout)::emp
-integer(4),intent(in),optional::count
+integer(4),intent(in)::num
 end
 subroutine read_positions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
 character(15_4,4),allocatable,intent(out)::positions_rank(:)
-end
-pure function get_position_rank(position,positions_rank) result(rank)
-character(15_4,4),intent(in)::position
-character(15_4,4),intent(in)::positions_rank(:)
-integer(4)::rank
-end
-recursive function count_employees(emp,accum) result(n)
-type(employee),allocatable,intent(in)::emp
-integer(4),intent(in)::accum
-integer(4)::n
 end
 subroutine output_employee_list(output_file,employees,list_name,position)
 character(*,1),intent(in)::output_file
@@ -138,18 +128,5 @@ end
 recursive subroutine output_employee_tail(out,emp)
 integer(4),intent(in)::out
 type(employee),allocatable,intent(in)::emp
-end
-recursive subroutine free_employee_list(emp)
-type(employee),allocatable,intent(inout)::emp
-end
-recursive subroutine list_to_array(emp,array,idx)
-type(employee),allocatable,intent(in)::emp
-type(employee),allocatable,intent(inout)::array(:)
-integer(4),intent(in)::idx
-end
-recursive subroutine array_to_list(emp,array,idx)
-type(employee),allocatable,intent(inout)::emp
-type(employee),allocatable,intent(in)::array(:)
-integer(4),intent(in)::idx
 end
 end
