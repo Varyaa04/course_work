@@ -7,7 +7,7 @@ module Order_io
    integer, parameter :: POSITION_LEN = 32
    integer, parameter :: REAL_SURNAME_LEN = 15
    integer, parameter :: REAL_POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 100   
+   integer, parameter :: EMPL_AMOUNT = 102   
    integer, parameter :: POS_AMOUNT = 5   
    
 contains
@@ -21,9 +21,9 @@ contains
       character(kind=CH_) :: temp_surnames(REAL_SURNAME_LEN, EMPL_AMOUNT)
       character(kind=CH_) :: temp_positions(REAL_POSITION_LEN, EMPL_AMOUNT)
     
-      !$omp allocate(surnames) align(64)
+      !!$omp allocate(surnames) align(64)
       allocate(surnames(SURNAME_LEN, EMPL_AMOUNT))
-      !$omp allocate(positions) align(64)
+      !!$omp allocate(positions) align(64)
       allocate(positions(POSITION_LEN, EMPL_AMOUNT))
       
       !обнуляем лишние байты
@@ -37,7 +37,6 @@ contains
       call Handle_IO_status(IO, "reading employees")
       
       !копируем в выровненные массивы
-      !$omp simd
       do j = 1, EMPL_AMOUNT
          do k = 1, REAL_SURNAME_LEN
             surnames(k, j) = temp_surnames(k, j)
@@ -46,7 +45,6 @@ contains
             positions(k, j) = temp_positions(k, j)
          end do
       end do
-      !$omp end simd
       
       close (In)
    end subroutine ReadEmpl
@@ -59,7 +57,7 @@ contains
       character(:), allocatable :: format
       character(kind=CH_) :: temp_rank(REAL_POSITION_LEN, POS_AMOUNT)
       
-      !$omp allocate(positions_rank) align(64)
+      !!$omp allocate(positions_rank) align(64)
       allocate(positions_rank(POSITION_LEN, POS_AMOUNT))
       positions_rank = ''
       

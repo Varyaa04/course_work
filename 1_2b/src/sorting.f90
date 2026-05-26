@@ -32,7 +32,7 @@ contains
       if (pos_a == 0 .or. pos_b == 0) then
          res = .false.
       else
-         res = pos_a > pos_b 
+         res = pos_a < pos_b 
       end if
       
    end function PositionLess
@@ -48,9 +48,9 @@ contains
       n = size(surnames, 2)
       
       !выравнивание 
-      !$omp allocate(tmp_s) align(64)
+      !!$omp allocate(tmp_s) align(64)
       allocate(tmp_s(SURNAME_LEN))
-      !$omp allocate(tmp_p) align(64)
+      !!$omp allocate(tmp_p) align(64)
       allocate(tmp_p(POSITION_LEN))
       
       sorted = .false.
