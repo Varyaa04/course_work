@@ -3,7 +3,7 @@ module Order_IO
    implicit none
    
    integer, parameter, public :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter, public :: EMPL_AMOUNT = 100000
+   integer, parameter, public :: EMPL_AMOUNT = 50000
    integer, parameter, public :: POS_AMOUNT = 5
    
    type, public :: employee
@@ -25,7 +25,7 @@ contains
       close (In)
    end function Read_employee_list
    
-   ! Чтение следующего сотрудника (рекурсивно, как в list_io)
+   ! Чтение следующего сотрудника 
    recursive subroutine Read_employee(In, emp)
       type(employee), allocatable :: emp
       integer, intent(in)         :: In
@@ -71,7 +71,7 @@ contains
       close (Out)
    end subroutine Output_employee_list
    
-   ! Вывод сотрудника (рекурсивно, как в list_io)
+   ! Вывод сотрудника 
    recursive subroutine Output_employee(Out, emp)
       integer, intent(in)         :: Out
       type(employee), allocatable, intent(in) :: emp

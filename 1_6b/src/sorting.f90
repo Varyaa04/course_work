@@ -26,7 +26,7 @@ contains
       end if
    end function Position_less
 
-   ! Рекурсивный проход сортировки (как Sort_pass в вашем коде)
+   !один проход сортировки 
    recursive subroutine Sort_pass(employees, positions_rank, swapped)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -38,7 +38,7 @@ contains
       if (.not. allocated(employees)) return
       if (.not. allocated(employees%next)) return
       
-      ! Меняем местами, если нужно
+      !меняем местами, если нужно
       if (Position_less(employees%position, employees%next%position, positions_rank)) then
          tmp_surname = employees%surname
          tmp_position = employees%position
@@ -52,11 +52,11 @@ contains
          swapped = .true.
       end if
       
-      ! Рекурсивный вызов для следующей пары
+      !рекурсивный вызов для следующей пары
       call Sort_pass(employees%next, positions_rank, swapped)
    end subroutine Sort_pass
 
-   ! Рекурсивная внешняя сортировка
+   !рекурсивная внешняя сортировка
    recursive subroutine Sort_employee_list_tail(employees, positions_rank, swapped)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -68,8 +68,8 @@ contains
       
       new_swapped = .false.
       call Sort_pass(employees, positions_rank, new_swapped)
-      
-      ! Рекурсивный вызов
+     
+     !рекурсивный вызов
       call Sort_employee_list_tail(employees, positions_rank, new_swapped)
    end subroutine Sort_employee_list_tail
 

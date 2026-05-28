@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:9237f64b47369320
-!need$ ffd3b01fb4db1f40 n order_io
+﻿!mod$ v1 sum:1363254727153894
+!need$ 13c0d6bf856d7df7 n order_io
 module sorting
 use order_io,only:event_type
 use order_io,only:notify_type
@@ -103,6 +103,8 @@ use order_io,only:pos_amount
 use order_io,only:readempl
 use order_io,only:readpositions
 use order_io,only:writeempl
+character(15_4,4)::tmp_s
+character(15_4,4)::tmp_p
 contains
 pure function positionless(a,b,positions_rank) result(res)
 character(15_4,4),intent(in)::a

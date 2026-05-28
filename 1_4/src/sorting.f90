@@ -35,18 +35,17 @@ contains
          sorted = .true.
          
          !четная фаза 
-         !$omp parallel do  reduction(.and.:sorted) private(tmp_surname, tmp_position)
+         !$omp parallel do reduction(.and.:sorted)
          do i = 1, n-1, 2
             if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
                !обмен фамилий
-               tmp_surname = employees%surnames(i)
-               employees%surnames(i) = employees%surnames(i+1)
-               employees%surnames(i+1) = tmp_surname
-               
-               !обмен должностей
-               tmp_position = employees%positions(i)
-               employees%positions(i) = employees%positions(i+1)
-               employees%positions(i+1) = tmp_position
+                tmp_surname = employees%surnames(i)
+                employees%surnames(i) = employees%surnames(i+1)
+                employees%surnames(i+1) = tmp_surname  
+                !обмен должностей
+                tmp_position = employees%positions(i)
+                employees%positions(i) = employees%positions(i+1)
+                employees%positions(i+1) = tmp_position
                
                sorted = .false.
             end if
@@ -54,7 +53,7 @@ contains
          !$omp end parallel do 
          
          !нечетная фаза
-         !$omp parallel do  reduction(.and.:sorted) private(tmp_surname, tmp_position)
+         !$omp parallel do  reduction(.and.:sorted)
          do i = 2, n-1, 2
             if (PositionLess(employees%positions(i+1), employees%positions(i), positions_rank)) then
                !обмен фамилий

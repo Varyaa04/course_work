@@ -34,71 +34,74 @@ contains
       close (In)
    end subroutine Read_employees_list
    
-   !создание бинарного файла
+   !создание бинарного файла (stream access)
    subroutine Create_employees_binary(Input_File, Binary_File)
       character(*), intent(in) :: Input_File, Binary_File
       
       type(employees_soa) :: employees
-      integer :: In, Out, IO, recl
-      character(:), allocatable :: format
-            
+      integer :: Out, IO
+      
       call Read_employees_list(Input_File, employees)
       
-      recl = (SURNAME_LEN + POSITION_LEN) * CH_ * EMPL_AMOUNT
-      open (file=Binary_File, form='unformatted', newunit=Out, access='direct', recl=recl)
+      open (file=Binary_File, form='unformatted', access='stream', newunit=Out, iostat=IO)
+      call Handle_IO_status(IO, "opening binary file for writing")
       
-      write(Out, iostat=IO, rec=1) employees
-      call Handle_IO_status(IO, "creating unformatted file with employees list")
+      write(Out, iostat=IO) employees
+      call Handle_IO_status(IO, "creating stream file with employees list")
       
       close (Out)
    end subroutine Create_employees_binary
    
-   !чтение из бинарного файла
+   !чтение из бинарного файла (stream access)
    function Read_employees_binary(Binary_File) result(employees)
       type(employees_soa) :: employees
       character(*), intent(in) :: Binary_File
       
-      integer :: In, IO, recl
+      integer :: In, IO
       
-      recl = (SURNAME_LEN + POSITION_LEN) * CH_ * EMPL_AMOUNT
-      open (file=Binary_File, form='unformatted', newunit=In, access='direct', recl=recl)
-      read(In, iostat=IO, rec=1) employees
-      call Handle_IO_status(IO, "reading unformatted employees list")
+      open (file=Binary_File, form='unformatted', access='stream', newunit=In, iostat=IO)
+      call Handle_IO_status(IO, "opening binary file for reading")
+      
+      read(In, iostat=IO) employees
+      call Handle_IO_status(IO, "reading stream employees list")
+      
       close (In)
    end function Read_employees_binary
    
-   !создание бинарного файла с должностями
+   !создание бинарного файла с должностями (stream access)
    subroutine Create_positions_binary(Pos_File, Binary_Pos_File)
       character(*), intent(in) :: Pos_File, Binary_Pos_File
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
-      integer :: In, Out, IO, i, recl  
+      integer :: In, Out, IO, i  
       
       open (file=Pos_File, encoding=E_, newunit=In)
       
       read(In, '(a)', iostat=IO) (positions_rank(i), i = 1, POS_AMOUNT)
       call Handle_IO_status(IO, "reading positions")
       
-      recl = POSITION_LEN * CH_ * POS_AMOUNT
-      open (file=Binary_Pos_File, form='unformatted', newunit=Out, access='direct', recl=recl)
+      open (file=Binary_Pos_File, form='unformatted', access='stream', newunit=Out, iostat=IO)
+      call Handle_IO_status(IO, "opening positions binary file for writing")
       
-      write(Out, iostat=IO, rec=1) positions_rank
-      call Handle_IO_status(IO, "writing positions to binary file")
+      write(Out, iostat=IO) positions_rank
+      call Handle_IO_status(IO, "writing positions to stream file")
       
       close (In)
       close (Out)
    end subroutine Create_positions_binary
    
-   !чтение должностей из бинарного файла
+   !чтение должностей из бинарного файла (stream access)
    function Read_positions_binary(Binary_Pos_File) result(positions_rank)
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
       character(*), intent(in) :: Binary_Pos_File
       
-      integer :: In, IO, recl
+      integer :: In, IO
       
-      recl = POSITION_LEN * CH_ * POS_AMOUNT
-      open (file=Binary_Pos_File, form='unformatted', newunit=In, access='direct', recl=recl)
-      read(In, iostat=IO, rec=1) positions_rank
-      call Handle_IO_status(IO, "reading positions from binary file")
+      open (file=Binary_Pos_File, form='unformatted', access='stream', newunit=In, iostat=IO)
+      call Handle_IO_status(IO, "opening positions binary file for reading")
+      
+      read(In, iostat=IO) positions_rank
+      call Handle_IO_status(IO, "reading positions from stream file")
+      
       close (In)
    end function Read_positions_binary
    
@@ -107,7 +110,7 @@ contains
       character(*), intent(in) :: Output_File, Position, List_name
       type(employees_soa), intent(in) :: employees
       
-      integer :: Out, IO, i  ! i объявлен явно
+      integer :: Out, IO, i
       logical :: file_exists
       character(:), allocatable :: format
       

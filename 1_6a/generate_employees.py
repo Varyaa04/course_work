@@ -17,7 +17,7 @@ all_surnames = surnames_male + surnames_female
 
 positions = ["главный инженер", "ведущий инженер", "старший инженер", "инженер", "техник"]
 
-for i in range(100000):
+for i in range(50000):
     surname = random.choice(all_surnames)
     position = random.choice(positions)
     print(f"{surname:<15} {position}")

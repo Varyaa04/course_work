@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:d9acb92c69702593
-!need$ 5cbba2cdaa980ab0 n environment
+﻿!mod$ v1 sum:bf3f051e1ad52d86
+!need$ ea6dd147e57435bd n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,11 +98,11 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=100000_4
+integer(4),parameter::empl_amount=10000_4
 integer(4),parameter::pos_amount=5_4
 type::employees_soa
-character(15_4,4)::surnames(1_8:100000_8)
-character(15_4,4)::positions(1_8:100000_8)
+character(15_4,4)::surnames(1_8:10000_8)
+character(15_4,4)::positions(1_8:10000_8)
 end type
 contains
 subroutine create_data_file(input_file,data_file)

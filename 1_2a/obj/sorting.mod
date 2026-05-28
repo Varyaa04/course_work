@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:f1d62862af29c0ba
-!need$ 18b4c4fabd345523 n order_io
+﻿!mod$ v1 sum:6833c83083d18516
+!need$ e7612119d46920b0 n order_io
 module sorting
 use order_io,only:event_type
 use order_io,only:notify_type
@@ -111,8 +111,8 @@ character(1_8,4),intent(in)::positions_rank(:,:)
 logical(4)::res
 end
 subroutine sortempl(surnames,positions,positions_rank)
-character(1_8,4),intent(inout)::surnames(:,:)
-character(1_8,4),intent(inout)::positions(:,:)
-character(1_8,4),intent(in)::positions_rank(:,:)
+character(1_8,4),contiguous,intent(inout)::surnames(:,:)
+character(1_8,4),contiguous,intent(inout)::positions(:,:)
+character(1_8,4),contiguous,intent(in)::positions_rank(:,:)
 end
 end

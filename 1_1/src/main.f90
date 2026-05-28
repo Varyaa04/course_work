@@ -9,8 +9,11 @@ program main
    character(POSITION_LEN, kind=CH_) :: positions(EMPL_AMOUNT)
    character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
    character(:), allocatable :: input_file, output_file, pos_file
-   real(8) :: start_time, end_time
+   !real(8) :: start_time, end_time
    integer :: out_unit = 10
+
+   integer :: rate, count_start, count_end
+   real :: elapsed_time
 
    input_file = "../data/input_file.txt"
    output_file = "output.txt"
@@ -27,15 +30,24 @@ program main
 
    call WriteEmpl(output_file, surnames, positions, "ИСХОДНЫЙ СПИСОК:", "rewind")
 
-   start_time = omp_get_wtime()
+   !start_time = omp_get_wtime()
+   !call SortEmpl(surnames, positions, positions_rank)
+   !end_time = omp_get_wtime()
+
+   call system_clock(count_rate=rate)
+   call system_clock(count=count_start)
+
    call SortEmpl(surnames, positions, positions_rank)
-   end_time = omp_get_wtime()
+
+   call system_clock(count=count_end)
+   elapsed_time = real(count_end - count_start) / real(rate)
 
    call WriteEmpl(output_file, surnames, positions, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
 
    open(unit=out_unit, file=output_file, position='append', status='old', action='write')
    write(out_unit, '(/a)') repeat('=', 50)
-   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
+   !write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
+   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", elapsed_time, " секунд"
    write(out_unit, '(a)') repeat('=', 50)
    close(out_unit)
    

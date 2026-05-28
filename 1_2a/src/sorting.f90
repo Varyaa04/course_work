@@ -40,8 +40,8 @@ contains
    
    !cортировка чёт-нечет
    subroutine SortEmpl(surnames, positions, positions_rank)
-      character(kind=CH_), intent(inout) :: surnames(:, :), positions(:, :)
-      character(kind=CH_), intent(in) :: positions_rank(:, :)
+      character(kind=CH_), intent(inout),contiguous :: surnames(:, :), positions(:, :)
+      character(kind=CH_), intent(in), contiguous :: positions_rank(:, :)
       integer :: n, i, k
       logical :: sorted
       character(kind=CH_) :: tmp_s(SURNAME_LEN), tmp_p(POSITION_LEN)
@@ -53,7 +53,7 @@ contains
          sorted = .true.
          
         !чётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !$omp parallel do reduction(.and.:sorted)
          do i = 1, n-1, 2
             if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
                !обмен фамилиями
@@ -72,7 +72,7 @@ contains
          !$omp end parallel do
 
          !нечётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !$omp parallel do reduction(.and.:sorted)
          do i = 2, n-1, 2
             if (PositionLess(positions(i+1, :), positions(i, :), positions_rank)) then
                !обмен фамилиями 

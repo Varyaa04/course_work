@@ -3,6 +3,9 @@ module Sorting
    use Environment
    implicit none
 
+   character(SURNAME_LEN, kind=CH_) :: tmp_s
+   character(POSITION_LEN, kind=CH_) :: tmp_p
+
 contains
    pure function PositionLess(a, b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: a, b
@@ -27,8 +30,6 @@ contains
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       
       integer :: n, j
-      character(SURNAME_LEN, kind=CH_) :: tmp_s
-      character(POSITION_LEN, kind=CH_) :: tmp_p
       logical :: sorted
       
       n = size(surnames)
@@ -38,7 +39,7 @@ contains
          sorted = .true.
       
          !четная фаза  
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !$omp parallel do reduction(.and.:sorted)
          do j = 1, n-1, 2
             if (PositionLess(positions(j+1), positions(j), positions_rank)) then
                !обмен фамилиями
@@ -57,7 +58,7 @@ contains
          !$omp end parallel do
       
          !нечетная фаза
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted)
+         !$omp parallel do reduction(.and.:sorted)
          do j = 2, n-1, 2
             if (PositionLess(positions(j+1), positions(j), positions_rank)) then
                !меняем фамилии

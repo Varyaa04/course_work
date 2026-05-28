@@ -59,7 +59,7 @@ contains
          sorted = .true.
          
          !чётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted) &
+         !$omp parallel do reduction(.and.:sorted) &
          !$omp shared(surnames, positions, positions_rank)
          do j = 1, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
@@ -87,7 +87,7 @@ contains
          !$omp end parallel do
 
          !нечётная фаза 
-         !$omp parallel do private(tmp_s, tmp_p) reduction(.and.:sorted) &
+         !$omp parallel do reduction(.and.:sorted) &
          !$omp shared(surnames, positions, positions_rank)
          do j = 2, n-1, 2
             if (PositionLess(positions(:, j+1), positions(:, j), positions_rank)) then
