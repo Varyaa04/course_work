@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:170d91baa35d5436
+﻿!mod$ v1 sum:5e02d46e0f83e8b1
 !need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
@@ -98,7 +98,7 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=102_4
+integer(4),parameter::empl_amount=100000_4
 integer(4),parameter::pos_amount=5_4
 type::employee
 character(15_4,4)::surname=4_"               "
@@ -110,10 +110,9 @@ function read_employee_list(input_file) result(employees)
 character(*,1),intent(in)::input_file
 type(employee),allocatable::employees
 end
-recursive subroutine read_employee_tail(in,emp,num)
+recursive subroutine read_employee(in,emp)
 integer(4),intent(in)::in
-type(employee),allocatable,intent(inout)::emp
-integer(4),intent(in)::num
+type(employee),allocatable::emp
 end
 subroutine read_positions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
@@ -125,7 +124,7 @@ type(employee),allocatable,intent(in)::employees
 character(*,1),intent(in)::list_name
 character(*,1),intent(in)::position
 end
-recursive subroutine output_employee_tail(out,emp)
+recursive subroutine output_employee(out,emp)
 integer(4),intent(in)::out
 type(employee),allocatable,intent(in)::emp
 end

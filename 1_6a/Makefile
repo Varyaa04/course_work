@@ -1,5 +1,5 @@
 FC=flang
-FFLAGS=-fimplicit-none -fopenmp -march=native
+FFLAGS=-fimplicit-none -march=native -fopenmp 
 FOPT=-O3
 
 
@@ -23,9 +23,12 @@ bin:
 	mkdir -p bin
 
 clean:
-	rm -rf obj/* bin/* output.txt
+	rm -rf obj/* bin/* output.txt data/input_file.txt
 
 run:
 	cd ./bin && ./app
 	cat bin/output.txt
     LANG=ru_RU.UTF-8 cat bin/output.txt
+
+generate:
+	python3 generate_employees.py > data/input_file.txt

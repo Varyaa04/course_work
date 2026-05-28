@@ -7,7 +7,7 @@ module Order_io
    integer, parameter :: POSITION_LEN = 32
    integer, parameter :: REAL_SURNAME_LEN = 15
    integer, parameter :: REAL_POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 102   
+   integer, parameter :: EMPL_AMOUNT = 100000 
    integer, parameter :: POS_AMOUNT = 5   
    
 contains

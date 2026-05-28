@@ -3,7 +3,7 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 15   
+   integer, parameter :: EMPL_AMOUNT = 100000 
    integer, parameter :: POS_AMOUNT = 5     
    
 contains

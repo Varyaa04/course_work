@@ -6,11 +6,11 @@ program main
    
    implicit none
    character(:), allocatable :: input_file, output_file, data_file, pos_file
-   
    type(employees_soa) :: employees
    character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
    real(8) :: start_time, end_time
-   
+   integer :: out_unit = 10
+
    input_file  = "../data/input_file.txt"
    output_file = "output.txt"
    data_file   = "employees.bin"
@@ -37,11 +37,13 @@ program main
    start_time = omp_get_wtime()
    call Sort_employees(employees, positions_rank, EMPL_AMOUNT)
    end_time = omp_get_wtime()
-   print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
-   print *, ""
    
    call Output_employee_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
-   
-   print *, "      Результат сохранён в output.txt"
-   
+
+   open(unit=out_unit, file=output_file, position='append', status='old', action='write')
+   write(out_unit, '(/a)') repeat('=', 50)
+   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
+   write(out_unit, '(a)') repeat('=', 50)
+   close(out_unit)
+
 end program main

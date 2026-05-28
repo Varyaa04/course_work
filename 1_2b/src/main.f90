@@ -8,7 +8,7 @@ program main
    character(kind=CH_), allocatable :: surnames(:, :), positions(:, :), positions_rank(:, :)
    character(:), allocatable :: input_file, output_file, pos_file
    real(8) :: start_time, end_time
-   integer :: i
+   integer :: out_unit = 10, i
    
    input_file = "../data/input_file.txt"
    output_file = "output.txt"
@@ -30,11 +30,16 @@ program main
    call SortEmpl(surnames, positions, positions_rank)
    
    end_time = omp_get_wtime()
-   print '(a, f10.6, a)', "      Время сортировки: ", end_time - start_time, " секунд"
-   print *, ""
+
    
    call WriteEmpl(output_file, surnames, positions, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
    
+   open(unit=out_unit, file=output_file, position='append', status='old', action='write')
+   write(out_unit, '(/a)') repeat('=', 50)
+   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
+   write(out_unit, '(a)') repeat('=', 50)
+   close(out_unit)
+
    deallocate(surnames, positions, positions_rank)
 
 end program main

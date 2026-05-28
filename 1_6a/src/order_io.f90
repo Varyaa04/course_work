@@ -4,7 +4,7 @@ module Order_IO
    
    integer, parameter :: SURNAME_LEN = 15
    integer, parameter :: POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 102
+   integer, parameter :: EMPL_AMOUNT = 100000
    integer, parameter :: POS_AMOUNT = 5
    
    type employee
@@ -67,7 +67,7 @@ contains
       type(employee), intent(in) :: empl_list
       integer                    :: Out
       
-      open (file=Output_File, encoding=E_, position=Position, newunit=Out)
+      open (file=Output_File, position=Position, newunit=Out)
          write (Out, '(/a)') List_Name
          call Output_employee(Out, empl_list)
       close (Out)

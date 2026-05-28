@@ -4,7 +4,7 @@ module Order_io
 
    integer, parameter :: SURNAME_LEN = 15
    integer, parameter :: POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 15
+   integer, parameter :: EMPL_AMOUNT = 100000
    integer, parameter :: POS_AMOUNT = 5
 
    type employee
@@ -65,7 +65,8 @@ contains
       open (file=pos_file, encoding=E_, newunit=In)
       open (file=binary_pos_file, form='unformatted', newunit=Out, access='direct', recl=recl)
 
-
+      do i = 1, POS_AMOUNT
+         read (In, '(a)', iostat=IO) pos
          call Handle_IO_Status(IO, "reading position " // i)
          
          write (Out, iostat=IO, rec=i) pos
@@ -110,4 +111,4 @@ contains
       close (Out)
    end subroutine WriteEmployeesText
 
-end module Order_io
+end module  Order_IO

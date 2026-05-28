@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:f64128cb80c55fd9
-!need$ cd64fbaa79ebf3d7 n order_io
+﻿!mod$ v1 sum:6483a859c6f16e0c
+!need$ 4704f1a8a1a223a5 n order_io
 !need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
@@ -109,13 +109,23 @@ use order_io,only:read_positions
 use order_io,only:output_employee_list
 use order_io,only:output_employee
 contains
-pure function position_less(pos_a,pos_b,positions_rank) result(res)
+function position_less(pos_a,pos_b,positions_rank) result(res)
 character(15_4,4),intent(in)::pos_a
 character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
-recursive subroutine sort_employee_list(employees,positions_rank)
+subroutine sort_pass(employees,positions_rank,swapped)
+type(employee),intent(inout),pointer::employees
+character(15_4,4),intent(in)::positions_rank(:)
+logical(4),intent(out)::swapped
+end
+recursive subroutine sort_employee_list_tail(employees,positions_rank,swapped)
+type(employee),intent(inout),pointer::employees
+character(15_4,4),intent(in)::positions_rank(:)
+logical(4),intent(in)::swapped
+end
+subroutine sort_employee_list(employees,positions_rank)
 type(employee),intent(inout),pointer::employees
 character(15_4,4),intent(in)::positions_rank(:)
 end

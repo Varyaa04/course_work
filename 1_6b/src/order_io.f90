@@ -3,7 +3,7 @@ module Order_IO
    implicit none
    
    integer, parameter, public :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter, public :: EMPL_AMOUNT = 102
+   integer, parameter, public :: EMPL_AMOUNT = 100000
    integer, parameter, public :: POS_AMOUNT = 5
    
    type, public :: employee
@@ -21,37 +21,26 @@ contains
       integer :: In
       
       open (file=Input_File, encoding=E_, newunit=In)
-         call Read_employee_tail(In, employees, 1)
+         call Read_employee(In, employees)
       close (In)
    end function Read_employee_list
    
-   !хвостовая рекурсия: чтение сотрудников
-   recursive subroutine Read_employee_tail(In, emp, num)
-      integer, intent(in) :: In, num
-      type(employee), allocatable, intent(inout) :: emp
+   ! Чтение следующего сотрудника (рекурсивно, как в list_io)
+   recursive subroutine Read_employee(In, emp)
+      type(employee), allocatable :: emp
+      integer, intent(in)         :: In
+      integer  IO
       
-      integer :: IO
-      character(:), allocatable :: format
-      type(employee), allocatable :: new_emp
-      
-      if (num > EMPL_AMOUNT) then
-         if (allocated(emp)) deallocate(emp)
-         return
-      end if
-      
-      allocate(new_emp)
-      format = '(a15, 1x, a15)'
-      read (In, format, iostat=IO) new_emp%surname, new_emp%position
-      call Handle_IO_status(IO, "reading employee " // num)
+      allocate(emp)
+      read (In, '(a15, 1x, a15)', iostat=IO) emp%surname, emp%position
+      call Handle_IO_status(IO, "reading employee from file")
       
       if (IO == 0) then
-         call Read_employee_tail(In, new_emp%next, num + 1)
-         call move_alloc(new_emp, emp)
+          call Read_employee(In, emp%next)
       else
-         deallocate(new_emp)
-         if (allocated(emp)) deallocate(emp)
+         deallocate(emp)
       end if
-   end subroutine Read_employee_tail
+   end subroutine Read_employee
    
    !чтение ранга должностей
    subroutine Read_positions(positions_file, positions_rank)
@@ -78,25 +67,22 @@ contains
       
       open (file=Output_File, encoding=E_, position=Position, newunit=Out)
          write (Out, '(/a)') List_Name
-         call Output_employee_tail(Out, employees)
+         call Output_employee(Out, employees)
       close (Out)
    end subroutine Output_employee_list
    
-   !хвостовая рекурсия: вывод сотрудников
-   recursive subroutine Output_employee_tail(Out, emp)
-      integer, intent(in) :: Out
+   ! Вывод сотрудника (рекурсивно, как в list_io)
+   recursive subroutine Output_employee(Out, emp)
+      integer, intent(in)         :: Out
       type(employee), allocatable, intent(in) :: emp
+      
       integer :: IO
-      character(:), allocatable :: format
       
-      if (.not. allocated(emp)) return
-      
-      format = '(a15, 1x, a15)'
-      write (Out, format, iostat=IO) emp%surname, emp%position
-      call Handle_IO_status(IO, "writing employee")
-      
-      call Output_employee_tail(Out, emp%next)
-   end subroutine Output_employee_tail
-   
+      if (allocated(emp)) then
+         write (Out, '(a15, 1x, a15)', iostat=IO) emp%surname, emp%position
+         call Handle_IO_status(IO, "writing employee")
+         call Output_employee(Out, emp%next)
+      end if
+   end subroutine Output_employee
    
 end module Order_IO

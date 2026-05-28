@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:cd64fbaa79ebf3d7
+﻿!mod$ v1 sum:4704f1a8a1a223a5
 !need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
@@ -98,7 +98,7 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=102_4
+integer(4),parameter::empl_amount=100000_4
 integer(4),parameter::pos_amount=5_4
 type::employee
 character(15_4,4)::surname=4_"               "

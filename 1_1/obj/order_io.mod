@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:50c061cb87324bbd
-!need$ ddac13f897d5fcb3 n environment
+﻿!mod$ v1 sum:ffd3b01fb4db1f40
+!need$ cf5f96939bb5da86 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -98,13 +98,13 @@ use environment,only:string_plus_int
 use environment,only:handle_io_status
 integer(4),parameter::surname_len=15_4
 integer(4),parameter::position_len=15_4
-integer(4),parameter::empl_amount=12_4
+integer(4),parameter::empl_amount=100000_4
 integer(4),parameter::pos_amount=5_4
 contains
 subroutine readempl(input_file,surnames,positions)
 character(*,1),intent(in)::input_file
-character(15_4,4),intent(out)::surnames(1_8:12_8)
-character(15_4,4),intent(out)::positions(1_8:12_8)
+character(15_4,4),intent(out)::surnames(1_8:100000_8)
+character(15_4,4),intent(out)::positions(1_8:100000_8)
 end
 subroutine readpositions(positions_file,positions_rank)
 character(*,1),intent(in)::positions_file
@@ -112,8 +112,8 @@ character(15_4,4),intent(out)::positions_rank(1_8:5_8)
 end
 subroutine writeempl(output_file,surnames,positions,title,mode)
 character(*,1),intent(in)::output_file
-character(15_4,4),intent(in)::surnames(1_8:12_8)
-character(15_4,4),intent(in)::positions(1_8:12_8)
+character(15_4,4),intent(in)::surnames(1_8:100000_8)
+character(15_4,4),intent(in)::positions(1_8:100000_8)
 character(*,1),intent(in)::title
 character(*,1),intent(in)::mode
 end

@@ -4,7 +4,7 @@ module Order_IO
    
    integer, parameter :: SURNAME_LEN = 15
    integer, parameter :: POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 102
+   integer, parameter :: EMPL_AMOUNT = 100000
    integer, parameter :: POS_AMOUNT = 5
    
    ! Структура массивов (SoA) - сплошные данные

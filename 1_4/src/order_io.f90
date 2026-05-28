@@ -3,7 +3,7 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 102, POS_AMOUNT = 5
+   integer, parameter :: EMPL_AMOUNT = 10000, POS_AMOUNT = 5
    
    type employees_soa
       character(SURNAME_LEN, kind=CH_) :: surnames(EMPL_AMOUNT)

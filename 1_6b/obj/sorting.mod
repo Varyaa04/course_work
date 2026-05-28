@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:4307e6de0d541a3f
-!need$ 170d91baa35d5436 n order_io
+﻿!mod$ v1 sum:67f27331fdfba59a
+!need$ 5e02d46e0f83e8b1 n order_io
 !need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
@@ -103,38 +103,29 @@ use order_io,only:empl_amount
 use order_io,only:pos_amount
 use order_io,only:employee
 use order_io,only:read_employee_list
-use order_io,only:read_employee_tail
+use order_io,only:read_employee
 use order_io,only:read_positions
 use order_io,only:output_employee_list
-use order_io,only:output_employee_tail
+use order_io,only:output_employee
 contains
-pure function position_less(pos1,pos2,positions_rank) result(res)
-character(15_4,4),intent(in)::pos1
-character(15_4,4),intent(in)::pos2
+function position_less(pos_a,pos_b,positions_rank) result(res)
+character(15_4,4),intent(in)::pos_a
+character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
-recursive subroutine sort_employee_list(employees,positions_rank,n)
+recursive subroutine sort_pass(employees,positions_rank,swapped)
 type(employee),allocatable,intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::n
+logical(4),intent(inout)::swapped
 end
-recursive subroutine odd_phase(current,positions_rank,pos,n,sorted)
-type(employee),allocatable,intent(inout)::current
+recursive subroutine sort_employee_list_tail(employees,positions_rank,swapped)
+type(employee),allocatable,intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::pos
-integer(4),intent(in)::n
-logical(4),intent(inout)::sorted
+logical(4),intent(in)::swapped
 end
-recursive subroutine even_phase(current,positions_rank,pos,n,sorted)
-type(employee),allocatable,intent(inout)::current
+subroutine sort_employee_list(employees,positions_rank)
+type(employee),allocatable,intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
-integer(4),intent(in)::pos
-integer(4),intent(in)::n
-logical(4),intent(inout)::sorted
-end
-pure subroutine swap_data(node1,node2)
-type(employee),intent(inout)::node1
-type(employee),intent(inout)::node2
 end
 end
