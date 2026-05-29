@@ -1,4 +1,4 @@
-﻿!mod$ v1 sum:f56c6a30f6cde2bc
+﻿!mod$ v1 sum:e81a420a319fae46
 !need$ ea6dd147e57435bd n environment
 module order_io
 use environment,only:event_type
@@ -96,27 +96,39 @@ use environment,only:operator(//)
 use environment,only:int_plus_string
 use environment,only:string_plus_int
 use environment,only:handle_io_status
-integer(4),parameter::surname_len=16_4
-integer(4),parameter::position_len=16_4
-integer(4),parameter::real_surname_len=15_4
-integer(4),parameter::real_position_len=15_4
+integer(4),parameter::surname_len=15_4
+integer(4),parameter::position_len=15_4
 integer(4),parameter::empl_amount=100_4
 integer(4),parameter::pos_amount=5_4
+type::employees_soa
+character(15_4,4)::surnames(1_8:100_8)
+character(15_4,4)::positions(1_8:100_8)
+end type
 contains
-subroutine readempl(input_file,surnames,positions)
+subroutine read_employees_list(input_file,employees)
 character(*,1),intent(in)::input_file
-character(1_8,4),allocatable,intent(out)::surnames(:,:)
-character(1_8,4),allocatable,intent(out)::positions(:,:)
+type(employees_soa),intent(out)::employees
 end
-subroutine readpositions(positions_file,positions_rank)
-character(*,1),intent(in)::positions_file
-character(1_8,4),allocatable,intent(out)::positions_rank(:,:)
+subroutine create_employees_binary(input_file,binary_file)
+character(*,1),intent(in)::input_file
+character(*,1),intent(in)::binary_file
 end
-subroutine writeempl(output_file,surnames,positions,title,mode)
+function read_employees_binary(binary_file) result(employees)
+character(*,1),intent(in)::binary_file
+type(employees_soa)::employees
+end
+subroutine create_positions_binary(pos_file,binary_pos_file)
+character(*,1),intent(in)::pos_file
+character(*,1),intent(in)::binary_pos_file
+end
+function read_positions_binary(binary_pos_file) result(positions_rank)
+character(*,1),intent(in)::binary_pos_file
+character(15_4,4)::positions_rank(1_8:5_8)
+end
+subroutine output_employees_list(output_file,employees,list_name,position)
 character(*,1),intent(in)::output_file
-character(1_8,4),intent(in)::surnames(:,:)
-character(1_8,4),intent(in)::positions(:,:)
-character(*,1),intent(in)::title
-character(*,1),intent(in)::mode
+type(employees_soa),intent(in)::employees
+character(*,1),intent(in)::list_name
+character(*,1),intent(in)::position
 end
 end

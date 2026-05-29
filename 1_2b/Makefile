@@ -1,5 +1,5 @@
 FC=flang
-FFLAGS=-O3 -fimplicit-none -march=native -funroll-loops -fomit-frame-pointer #-fopenmp 
+FFLAGS=-O3 -fimplicit-none -march=native -funroll-loops -fomit-frame-pointer -fopenmp 
 FOPT=-O3
 
 
@@ -14,7 +14,8 @@ all: obj bin
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/order_io.f90 -J obj/ -o obj/order_io.o
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/sorting.f90 -J obj/ -o obj/sorting.o
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/main.f90 -I obj/ -o obj/main.o
-	$(FC) $(FFLAGS)  -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o 
+	$(FC) $(FFLAGS)  -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o $(OMP_LIB)
+
 obj:
 	mkdir -p obj
 
@@ -27,7 +28,7 @@ clean:
 run:
 	ulimit -s unlimited && cd ./bin && ./app
 	cat bin/output.txt
-    LANG=ru_RU.UTF-8 cat bin/output.txt
+	LANG=ru_RU.UTF-8 cat bin/output.txt
 
 generate:
 	python3 generate_employees.py > data/input_file.txt

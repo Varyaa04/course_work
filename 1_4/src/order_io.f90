@@ -3,7 +3,7 @@ module Order_io
    implicit none
    
    integer, parameter :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 10000, POS_AMOUNT = 5
+   integer, parameter :: EMPL_AMOUNT = 100, POS_AMOUNT = 5
    
    type employees_soa
       character(SURNAME_LEN, kind=CH_) :: surnames(EMPL_AMOUNT)
@@ -34,7 +34,7 @@ contains
       close (In)
    end subroutine Read_employees_list
    
-   !создание бинарного файла (stream access)
+   !создание бинарного файла 
    subroutine Create_employees_binary(Input_File, Binary_File)
       character(*), intent(in) :: Input_File, Binary_File
       
@@ -52,7 +52,7 @@ contains
       close (Out)
    end subroutine Create_employees_binary
    
-   !чтение из бинарного файла (stream access)
+   !чтение из бинарного файла
    function Read_employees_binary(Binary_File) result(employees)
       type(employees_soa) :: employees
       character(*), intent(in) :: Binary_File
@@ -68,7 +68,7 @@ contains
       close (In)
    end function Read_employees_binary
    
-   !создание бинарного файла с должностями (stream access)
+   !создание бинарного файла с должностями 
    subroutine Create_positions_binary(Pos_File, Binary_Pos_File)
       character(*), intent(in) :: Pos_File, Binary_Pos_File
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
@@ -89,7 +89,7 @@ contains
       close (Out)
    end subroutine Create_positions_binary
    
-   !чтение должностей из бинарного файла (stream access)
+   !чтение должностей из бинарного файла 
    function Read_positions_binary(Binary_Pos_File) result(positions_rank)
       character(POSITION_LEN, kind=CH_) :: positions_rank(POS_AMOUNT)
       character(*), intent(in) :: Binary_Pos_File

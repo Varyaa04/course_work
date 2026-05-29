@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:1a83dae0fc23ec73
-!need$ 83bf0cdc610158f8 n order_io
+﻿!mod$ v1 sum:1e1c74279dcb6816
+!need$ 1bb3400aebff6cf6 n order_io
 !need$ ea6dd147e57435bd n environment
 module sorting
 use environment,only:event_type
@@ -114,10 +114,20 @@ character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
 end
-recursive subroutine sort_pass(employees,positions_rank,swapped)
+recursive subroutine odd_phase(employees,positions_rank,swapped)
 type(employee),allocatable,intent(inout)::employees
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4),intent(inout)::swapped
+end
+recursive subroutine even_phase(employees,positions_rank,swapped)
+type(employee),allocatable,intent(inout)::employees
+character(15_4,4),intent(in)::positions_rank(:)
+logical(4),intent(inout)::swapped
+end
+subroutine sort_pass(employees,positions_rank,swapped)
+type(employee),allocatable,intent(inout)::employees
+character(15_4,4),intent(in)::positions_rank(:)
+logical(4),intent(out)::swapped
 end
 recursive subroutine sort_employee_list_tail(employees,positions_rank,swapped)
 type(employee),allocatable,intent(inout)::employees

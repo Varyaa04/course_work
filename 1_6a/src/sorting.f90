@@ -1,6 +1,6 @@
 module Sorting
    use Environment
-   use Order_IO
+   use Order_io
    implicit none
 
 contains
@@ -46,10 +46,9 @@ contains
       do while (associated(cur))
 
          nxt => cur%next
-         if (.not. associated(nxt)) exit
-
+         if(.not. associated(nxt)) exit
+         
          if (Position_less(cur%position, nxt%position, positions_rank)) then
-
             tmp_surname = cur%surname
             tmp_position = cur%position
 
@@ -72,10 +71,10 @@ contains
       do while (associated(cur))
 
          nxt => cur%next
-         if (.not. associated(nxt)) exit
+         if(.not. associated(nxt)) exit
 
          if (Position_less(cur%position, nxt%position, positions_rank)) then
-
+            tmp_surname = cur%surname
             tmp_surname = cur%surname
             tmp_position = cur%position
 

@@ -2,12 +2,11 @@ module Order_io
    use Environment
    implicit none
    
-   !длины должны быть кратны 32 байтам (по формуле из лекции)
-   integer, parameter :: SURNAME_LEN = 32      
-   integer, parameter :: POSITION_LEN = 32
+   integer, parameter :: SURNAME_LEN = 16 !16      
+   integer, parameter :: POSITION_LEN = 16
    integer, parameter :: REAL_SURNAME_LEN = 15
    integer, parameter :: REAL_POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 10000 
+   integer, parameter :: EMPL_AMOUNT = 100 
    integer, parameter :: POS_AMOUNT = 5   
    
 contains
@@ -21,9 +20,7 @@ contains
       character(kind=CH_) :: temp_surnames(REAL_SURNAME_LEN, EMPL_AMOUNT)
       character(kind=CH_) :: temp_positions(REAL_POSITION_LEN, EMPL_AMOUNT)
     
-      !!$omp allocate(surnames) align(64)
       allocate(surnames(SURNAME_LEN, EMPL_AMOUNT))
-      !!$omp allocate(positions) align(64)
       allocate(positions(POSITION_LEN, EMPL_AMOUNT))
       
       !обнуляем лишние байты
@@ -56,18 +53,17 @@ contains
       integer :: In, IO, j, k
       character(:), allocatable :: format
       character(kind=CH_) :: temp_rank(REAL_POSITION_LEN, POS_AMOUNT)
-      
-      !!$omp allocate(positions_rank) align(64)
+      !tmp --
       allocate(positions_rank(POSITION_LEN, POS_AMOUNT))
       positions_rank = ''
       
       open (file=positions_file, encoding=E_, newunit=In)
       format = '(' // REAL_POSITION_LEN // 'a1)'
-      read (In, format, iostat=IO) (temp_rank(:, j), j = 1, POS_AMOUNT)
+      read (In, format, iostat=IO) (positions_rank(1:REAL_POSITION_LEN, j), j = 1, POS_AMOUNT)
       call Handle_IO_status(IO, "reading positions")
       
       !копируем в выровненные массивы
-      !$omp simd
+      !$omp simd 
       do j = 1, POS_AMOUNT
          do k = 1, REAL_POSITION_LEN
             positions_rank(k, j) = temp_rank(k, j)

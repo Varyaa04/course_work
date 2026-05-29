@@ -2,14 +2,14 @@ program main
    use Environment
    use Order_io
    use Sorting
-   !use omp_lib
+   use omp_lib
    implicit none
 
    type(employees_soa), allocatable :: employees
    character(POSITION_LEN, kind=CH_), allocatable :: positions_rank(:)
 
    character(:), allocatable :: input_file, binary_file, output_file, pos_file, binary_pos_file
-   integer :: start_time, end_time, rate
+   real(8) :: start_time, end_time
    integer :: out_unit = 10
 
    input_file = "../data/input_file.txt"
@@ -37,21 +37,16 @@ program main
 
    !сортировка
 
-   call system_clock(count_rate=rate)
-   call system_clock(count=start_time)
-   !start_time = omp_get_wtime()
+   start_time = omp_get_wtime()
    call SortEmployees(employees, positions_rank)
-   !end_time = omp_get_wtime()
-   call system_clock(count=end_time)
+   end_time = omp_get_wtime()
 
 
    call Output_employees_list(output_file, employees, "ОТСОРТИРОВАННЫЙ СПИСОК:", "append")
    
    open(unit=out_unit, file=output_file, position='append', status='old', action='write')
    write(out_unit, '(/a)') repeat('=', 50)
-   !write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
-   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", &
-     real(end_time - start_time) / real(rate), " секунд"
+   write(out_unit, '(a, f10.6, a)') " Время сортировки: ", end_time - start_time, " секунд"
    write(out_unit, '(a)') repeat('=', 50)
    close(out_unit)
 end program main

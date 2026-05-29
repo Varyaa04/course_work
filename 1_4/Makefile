@@ -1,5 +1,5 @@
 FC=flang
-FFLAGS=-O3 -fimplicit-none -march=native -funroll-loops -fomit-frame-pointer  #-fopenmp 
+FFLAGS=-O3 -fimplicit-none -march=native -funroll-loops -fomit-frame-pointer  -fopenmp 
 FOPT=-O3 
 
 OMP_ROOT = /usr/lib/llvm-19
@@ -13,7 +13,7 @@ all: obj bin
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/order_io.f90 -J obj/ -o obj/order_io.o
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/sorting.f90 -J obj/ -o obj/sorting.o
 	$(FC) $(FFLAGS) $(OMP_INC) -c src/main.f90 -I obj/ -o obj/main.o
-	$(FC) $(FFLAGS)  -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o 
+	$(FC) $(FFLAGS)  -o bin/app obj/environment.o obj/order_io.o obj/sorting.o obj/main.o $(OMP_LIB) 
  
 obj:
 	mkdir -p obj

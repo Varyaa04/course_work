@@ -3,7 +3,7 @@ module Order_IO
    implicit none
    
    integer, parameter, public :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter, public :: EMPL_AMOUNT = 50000
+   integer, parameter, public :: EMPL_AMOUNT = 1000 
    integer, parameter, public :: POS_AMOUNT = 5
    
    type, public :: employee
@@ -51,12 +51,10 @@ contains
       
       allocate(positions_rank(POS_AMOUNT))
       
-      open (file=positions_file, encoding=E_, newunit=In)
-      do i = 1, POS_AMOUNT
-         read (In, '(a)', iostat=IO) positions_rank(i)
-         call Handle_IO_status(IO, "reading position rank, line " // i)
-      end do
-      close (In)
+       open (file=positions_file, encoding=E_, newunit=In)
+       read (In, '(a)', iostat=IO) (positions_rank(i), i = 1, POS_AMOUNT)
+       call Handle_IO_status(IO, "reading positions from file")
+       close (In)
    end subroutine Read_positions
    
    !вывод списка сотрудников

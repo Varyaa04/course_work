@@ -29,7 +29,7 @@ run:
 	#cd ./bin && ./app
 	ulimit -s unlimited && cd ./bin && ./app
 	cat bin/output.txt
-   LANG=ru_RU.UTF-8 cat bin/output.txt
+	LANG=ru_RU.UTF-8 cat bin/output.txt
 
 generate:
 	python3 generate_employees.py > data/input_file.txt

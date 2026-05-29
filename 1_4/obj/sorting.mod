@@ -1,6 +1,7 @@
-﻿!mod$ v1 sum:f56c6a30f6cde2bc
+﻿!mod$ v1 sum:ab01b7ebe2162d3d
+!need$ e81a420a319fae46 n order_io
 !need$ ea6dd147e57435bd n environment
-module order_io
+module sorting
 use environment,only:event_type
 use environment,only:notify_type
 use environment,only:lock_type
@@ -96,27 +97,26 @@ use environment,only:operator(//)
 use environment,only:int_plus_string
 use environment,only:string_plus_int
 use environment,only:handle_io_status
-integer(4),parameter::surname_len=16_4
-integer(4),parameter::position_len=16_4
-integer(4),parameter::real_surname_len=15_4
-integer(4),parameter::real_position_len=15_4
-integer(4),parameter::empl_amount=100_4
-integer(4),parameter::pos_amount=5_4
+use order_io,only:surname_len
+use order_io,only:position_len
+use order_io,only:empl_amount
+use order_io,only:pos_amount
+use order_io,only:employees_soa
+use order_io,only:read_employees_list
+use order_io,only:create_employees_binary
+use order_io,only:read_employees_binary
+use order_io,only:create_positions_binary
+use order_io,only:read_positions_binary
+use order_io,only:output_employees_list
 contains
-subroutine readempl(input_file,surnames,positions)
-character(*,1),intent(in)::input_file
-character(1_8,4),allocatable,intent(out)::surnames(:,:)
-character(1_8,4),allocatable,intent(out)::positions(:,:)
+pure function positionless(pos_a,pos_b,positions_rank) result(res)
+character(15_4,4),intent(in)::pos_a
+character(15_4,4),intent(in)::pos_b
+character(15_4,4),intent(in)::positions_rank(:)
+logical(4)::res
 end
-subroutine readpositions(positions_file,positions_rank)
-character(*,1),intent(in)::positions_file
-character(1_8,4),allocatable,intent(out)::positions_rank(:,:)
-end
-subroutine writeempl(output_file,surnames,positions,title,mode)
-character(*,1),intent(in)::output_file
-character(1_8,4),intent(in)::surnames(:,:)
-character(1_8,4),intent(in)::positions(:,:)
-character(*,1),intent(in)::title
-character(*,1),intent(in)::mode
+subroutine sortemployees(employees,positions_rank)
+type(employees_soa),intent(inout)::employees
+character(15_4,4),intent(in)::positions_rank(:)
 end
 end

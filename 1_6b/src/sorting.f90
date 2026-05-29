@@ -26,8 +26,8 @@ contains
       end if
    end function Position_less
 
-   !один проход сортировки 
-   recursive subroutine Sort_pass(employees, positions_rank, swapped)
+   !чётная фаза
+   recursive subroutine Odd_Phase(employees, positions_rank, swapped)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical, intent(inout) :: swapped
@@ -38,7 +38,7 @@ contains
       if (.not. allocated(employees)) return
       if (.not. allocated(employees%next)) return
       
-      !меняем местами, если нужно
+      !сравниваем текущую пару
       if (Position_less(employees%position, employees%next%position, positions_rank)) then
          tmp_surname = employees%surname
          tmp_position = employees%position
@@ -52,32 +52,74 @@ contains
          swapped = .true.
       end if
       
-      !рекурсивный вызов для следующей пары
-      call Sort_pass(employees%next, positions_rank, swapped)
+      call Odd_Phase(employees%next%next, positions_rank, swapped)
+   end subroutine Odd_Phase
+
+   !нечётная фаза
+   recursive subroutine Even_Phase(employees, positions_rank, swapped)
+      type(employee), allocatable, intent(inout) :: employees
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      logical, intent(inout) :: swapped
+      
+      character(SURNAME_LEN, kind=CH_) :: tmp_surname
+      character(POSITION_LEN, kind=CH_) :: tmp_position
+      
+      if (.not. allocated(employees)) return
+      if (.not. allocated(employees%next)) return
+      if (.not. allocated(employees%next%next)) return
+      
+      !сравниваем пару 
+      if (Position_less(employees%next%position, employees%next%next%position, positions_rank)) then
+         tmp_surname = employees%next%surname
+         tmp_position = employees%next%position
+         
+         employees%next%surname = employees%next%next%surname
+         employees%next%position = employees%next%next%position
+         
+         employees%next%next%surname = tmp_surname
+         employees%next%next%position = tmp_position
+         
+         swapped = .true.
+      end if
+      
+      call Even_Phase(employees%next%next, positions_rank, swapped)
+   end subroutine Even_Phase
+
+   !один полный проход сортировки 
+   subroutine Sort_pass(employees, positions_rank, swapped)
+      type(employee), allocatable, intent(inout) :: employees
+      character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
+      logical, intent(out) :: swapped
+
+      swapped = .false.
+      
+      !чётная фаза
+      call Odd_Phase(employees, positions_rank, swapped)
+      
+      !нечётная фаза
+      call Even_Phase(employees, positions_rank, swapped)
    end subroutine Sort_pass
 
-   !рекурсивная внешняя сортировка
    recursive subroutine Sort_employee_list_tail(employees, positions_rank, swapped)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical, intent(in) :: swapped
-      
+
       logical :: new_swapped
-      
+
       if (.not. swapped) return
-      
-      new_swapped = .false.
+
       call Sort_pass(employees, positions_rank, new_swapped)
-     
-     !рекурсивный вызов
+
+      !рекурсия
       call Sort_employee_list_tail(employees, positions_rank, new_swapped)
    end subroutine Sort_employee_list_tail
 
-   ! Вызов из main
+   !вызов из main
    subroutine Sort_employee_list(employees, positions_rank)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
-      
+
       call Sort_employee_list_tail(employees, positions_rank, .true.)
    end subroutine Sort_employee_list
 

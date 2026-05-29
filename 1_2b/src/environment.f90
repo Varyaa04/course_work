@@ -1,4 +1,4 @@
-module environment
+module Environment
    use ISO_Fortran_Env
 
    implicit none
@@ -49,4 +49,4 @@ contains
       ! close (Out) ! Если не OUTPUT_UNIT.
    end subroutine Handle_IO_status
 
-end module environment
+end module Environment
