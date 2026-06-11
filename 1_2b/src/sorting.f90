@@ -7,7 +7,7 @@ module Sorting
 contains
   
    pure function PositionLess(a, b, positions_rank) result(res)
-      character(kind=CH_), intent(in) :: a(:), b(:)
+      character(kind=CH_), intent(in) :: a(:), b(:) 
       character(kind=CH_), intent(in) :: positions_rank(:, :)
       logical :: res
       integer :: pos_a, pos_b, j
@@ -15,6 +15,7 @@ contains
       pos_a = 0
       pos_b = 0
 
+      !ищем должность a в списке positions_rank
       do j = 1, size(positions_rank, 2)
          if (all(positions_rank(:, j) == a)) then
             pos_a = j
@@ -22,6 +23,7 @@ contains
          end if
       end do
 
+      !ищем должность b в списке positions_rank
       do j = 1, size(positions_rank, 2)
          if (all(positions_rank(:, j) == b)) then
             pos_b = j
@@ -36,7 +38,6 @@ contains
       end if
 
    end function PositionLess
-
      subroutine SortEmpl(surnames, positions, positions_rank)
       character(kind=CH_), allocatable, intent(inout) :: surnames(:, :), positions(:, :)
       character(kind=CH_), intent(in) :: positions_rank(:, :)

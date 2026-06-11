@@ -2,7 +2,7 @@ module Order_io
    use Environment
    implicit none
    
-   integer, parameter :: SURNAME_LEN = 16 !16      
+   integer, parameter :: SURNAME_LEN = 16  
    integer, parameter :: POSITION_LEN = 16
    integer, parameter :: REAL_SURNAME_LEN = 15
    integer, parameter :: REAL_POSITION_LEN = 15
@@ -15,33 +15,20 @@ contains
    subroutine ReadEmpl(input_file, surnames, positions)
       character(*), intent(in) :: input_file
       character(kind=CH_), allocatable, intent(out) :: surnames(:, :), positions(:, :)
-      integer :: In, IO, j, k
+      integer :: In, IO, j
       character(:), allocatable :: format
-      character(kind=CH_) :: temp_surnames(REAL_SURNAME_LEN, EMPL_AMOUNT)
-      character(kind=CH_) :: temp_positions(REAL_POSITION_LEN, EMPL_AMOUNT)
-    
+      
       allocate(surnames(SURNAME_LEN, EMPL_AMOUNT))
       allocate(positions(POSITION_LEN, EMPL_AMOUNT))
-      
-      !обнуляем лишние байты
       surnames = ''
       positions = ''
       
       open (file=input_file, encoding=E_, newunit=In)
       format = '(' // REAL_SURNAME_LEN // 'a1, 1x, ' // REAL_POSITION_LEN // 'a1)'
-      !читаем во временный массив
-      read (In, format, iostat=IO) (temp_surnames(:, j), temp_positions(:, j), j = 1, EMPL_AMOUNT)
+      !читаем сразу в выровненные массивы
+      read (In, format, iostat=IO) (surnames(1:REAL_SURNAME_LEN, j), &
+                                    positions(1:REAL_POSITION_LEN, j), j = 1, EMPL_AMOUNT)
       call Handle_IO_status(IO, "reading employees")
-      
-      !копируем в выровненные массивы
-      do j = 1, EMPL_AMOUNT
-         do k = 1, REAL_SURNAME_LEN
-            surnames(k, j) = temp_surnames(k, j)
-         end do
-         do k = 1, REAL_POSITION_LEN
-            positions(k, j) = temp_positions(k, j)
-         end do
-      end do
       
       close (In)
    end subroutine ReadEmpl
@@ -50,10 +37,8 @@ contains
    subroutine ReadPositions(positions_file, positions_rank)
       character(*), intent(in) :: positions_file
       character(kind=CH_), allocatable, intent(out) :: positions_rank(:, :)
-      integer :: In, IO, j, k
+      integer :: In, IO, j
       character(:), allocatable :: format
-      character(kind=CH_) :: temp_rank(REAL_POSITION_LEN, POS_AMOUNT)
-      !tmp --
       allocate(positions_rank(POSITION_LEN, POS_AMOUNT))
       positions_rank = ''
       
@@ -61,15 +46,6 @@ contains
       format = '(' // REAL_POSITION_LEN // 'a1)'
       read (In, format, iostat=IO) (positions_rank(1:REAL_POSITION_LEN, j), j = 1, POS_AMOUNT)
       call Handle_IO_status(IO, "reading positions")
-      
-      !копируем в выровненные массивы
-      !$omp simd 
-      do j = 1, POS_AMOUNT
-         do k = 1, REAL_POSITION_LEN
-            positions_rank(k, j) = temp_rank(k, j)
-         end do
-      end do
-      !$omp end simd
       
       close (In)
    end subroutine ReadPositions

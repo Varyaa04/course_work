@@ -1,5 +1,5 @@
-﻿!mod$ v1 sum:f56c6a30f6cde2bc
-!need$ ea6dd147e57435bd n environment
+﻿!mod$ v1 sum:15d80cdb742b33d1
+!need$ 5cbba2cdaa980ab0 n environment
 module order_io
 use environment,only:event_type
 use environment,only:notify_type
@@ -100,7 +100,7 @@ integer(4),parameter::surname_len=16_4
 integer(4),parameter::position_len=16_4
 integer(4),parameter::real_surname_len=15_4
 integer(4),parameter::real_position_len=15_4
-integer(4),parameter::empl_amount=100_4
+integer(4),parameter::empl_amount=100000_4
 integer(4),parameter::pos_amount=5_4
 contains
 subroutine readempl(input_file,surnames,positions)
