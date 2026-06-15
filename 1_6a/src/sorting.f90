@@ -75,7 +75,6 @@ contains
 
          if (Position_less(cur%position, nxt%position, positions_rank)) then
             tmp_surname = cur%surname
-            tmp_surname = cur%surname
             tmp_position = cur%position
 
             cur%surname = nxt%surname

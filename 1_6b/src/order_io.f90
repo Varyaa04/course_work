@@ -3,7 +3,7 @@ module Order_IO
    implicit none
    
    integer, parameter, public :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter, public :: EMPL_AMOUNT = 1000 
+   integer, parameter, public :: EMPL_AMOUNT = 100000
    integer, parameter, public :: POS_AMOUNT = 5
    
    type, public :: employee
@@ -63,7 +63,7 @@ contains
       type(employee), allocatable, intent(in) :: employees
       integer :: Out
       
-      open (file=Output_File, encoding=E_, position=Position, newunit=Out)
+      open (file=Output_File, position=Position, newunit=Out)
          write (Out, '(/a)') List_Name
          call Output_employee(Out, employees)
       close (Out)
