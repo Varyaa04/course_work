@@ -45,6 +45,5 @@ program main
    write(out_unit, '(a)') repeat('=', 50)
    close(out_unit)
 
-   deallocate(surnames, positions, positions_rank)
 
 end program main

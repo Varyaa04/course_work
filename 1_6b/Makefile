@@ -3,10 +3,10 @@ FFLAGS=-O3 -fimplicit-none -fopenmp -march=native -funroll-loops -fomit-frame-po
 FOPT=-O3
 
 
-#OMP_ROOT = /usr/lib/llvm-19
-#OMP_LIB = -L$(OMP_ROOT)/lib -lomp
-OMP_ROOT=/opt/homebrew/opt/libomp
-OMP_LIB=-L$(OMP_ROOT)/lib -lomp
+OMP_ROOT = /usr/lib/llvm-19
+OMP_LIB = -L$(OMP_ROOT)/lib -lomp
+#OMP_ROOT=/opt/homebrew/opt/libomp
+#OMP_LIB=-L$(OMP_ROOT)/lib -lomp
 OMP_INC = -I$(OMP_ROOT)/include
 
 all: obj bin
@@ -26,8 +26,7 @@ clean:
 	rm -rf obj/* bin/* output.txt data/input_file.txt
 
 run:
-	cd ./bin && ./app
-	#ulimit -s unlimited && cd ./bin && ./app
+	ulimit -s unlimited && cd ./bin && ./app
 	cat bin/output.txt
 generate:
 	python3 generate_employees.py > data/input_file.txt

@@ -40,6 +40,7 @@ contains
       
       !сравниваем текущую пару
       if (Position_less(employees%position, employees%next%position, positions_rank)) then
+ !через ссылки менять
          tmp_surname = employees%surname
          tmp_position = employees%position
          

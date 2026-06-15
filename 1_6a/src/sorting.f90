@@ -5,7 +5,6 @@ module Sorting
 
 contains
 
-
    function Position_less(pos_a, pos_b, positions_rank) result(res)
       character(POSITION_LEN, kind=CH_), intent(in) :: pos_a, pos_b
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
@@ -103,7 +102,6 @@ contains
 
       call Sort_pass(employees, positions_rank, new_swapped)
 
-      !хвостовая рекурсия
       call Sort_employee_list_tail(employees, positions_rank, new_swapped)
 
    end subroutine Sort_employee_list_tail

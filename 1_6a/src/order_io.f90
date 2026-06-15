@@ -4,7 +4,7 @@ module Order_IO
    
    integer, parameter :: SURNAME_LEN = 15
    integer, parameter :: POSITION_LEN = 15
-   integer, parameter :: EMPL_AMOUNT = 100000
+   integer, parameter :: EMPL_AMOUNT = 500
    integer, parameter :: POS_AMOUNT = 5
    
    type employee
@@ -38,9 +38,6 @@ contains
       call Handle_IO_status(IO, "reading line from file")
       if (IO == 0) then
          empl%next => Read_employee(In)
-      else
-         deallocate (empl)
-         empl => Null()
       end if
    end function Read_employee
    

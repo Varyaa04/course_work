@@ -3,7 +3,7 @@ module Order_IO
    implicit none
    
    integer, parameter, public :: SURNAME_LEN = 15, POSITION_LEN = 15
-   integer, parameter, public :: EMPL_AMOUNT = 100000
+   integer, parameter, public :: EMPL_AMOUNT = 500
    integer, parameter, public :: POS_AMOUNT = 5
    
    type, public :: employee
@@ -30,15 +30,15 @@ contains
       type(employee), allocatable :: emp
       integer, intent(in)         :: In
       integer  IO
-      
+      character(:), allocatable  :: format
+
       allocate(emp)
-      read (In, '(a15, 1x, a15)', iostat=IO) emp%surname, emp%position
+      format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+      read (In, format , iostat=IO) emp%surname, emp%position
       call Handle_IO_status(IO, "reading employee from file")
       
       if (IO == 0) then
           call Read_employee(In, emp%next)
-      else
-         deallocate(emp)
       end if
    end subroutine Read_employee
    
@@ -73,11 +73,12 @@ contains
    recursive subroutine Output_employee(Out, emp)
       integer, intent(in)         :: Out
       type(employee), allocatable, intent(in) :: emp
-      
+      character(:), allocatable  :: format 
       integer :: IO
       
       if (allocated(emp)) then
-         write (Out, '(a15, 1x, a15)', iostat=IO) emp%surname, emp%position
+          format = '(a' // SURNAME_LEN // ', 1x, a' // POSITION_LEN // ')'
+         write (Out, format , iostat=IO) emp%surname, emp%position
          call Handle_IO_status(IO, "writing employee")
          call Output_employee(Out, emp%next)
       end if
