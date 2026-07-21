@@ -27,20 +27,36 @@ contains
    end function Position_less
 
 
+   !переставляет местами узлы cur и nxt через ссылки:
+   subroutine Swap_links(prev, employees, cur, nxt)
+      type(employee), pointer, intent(inout) :: prev
+      type(employee), pointer, intent(inout) :: employees
+      type(employee), pointer, intent(inout) :: cur, nxt
+
+      cur%next => nxt%next
+      nxt%next => cur
+
+      if (associated(prev)) then
+         prev%next => nxt
+      else
+         employees => nxt
+      end if
+   end subroutine Swap_links
+
    !сортировка чет-нечет один проход
    subroutine Sort_pass(employees, positions_rank, swapped)
       type(employee), pointer, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical, intent(out) :: swapped
 
+      type(employee), pointer :: prev
       type(employee), pointer :: cur
       type(employee), pointer :: nxt
-      character(SURNAME_LEN, kind=CH_) :: tmp_surname
-      character(POSITION_LEN, kind=CH_) :: tmp_position
 
       swapped = .false.
 
       !четная фаза
+      nullify(prev)
       cur => employees
       do while (associated(cur))
 
@@ -48,24 +64,21 @@ contains
          if(.not. associated(nxt)) exit
          
          if (Position_less(cur%position, nxt%position, positions_rank)) then
-            tmp_surname = cur%surname
-            tmp_position = cur%position
-
-            cur%surname = nxt%surname
-            cur%position = nxt%position
-
-            nxt%surname = tmp_surname
-            nxt%position = tmp_position
-
+            !обмен через ссылки, без копирования полей
+            call Swap_links(prev, employees, cur, nxt)
             swapped = .true.
+            prev => nxt
+            !cur остаётся тем же узлом, теперь он идёт следом за nxt
+         else
+            prev => cur
+            cur => nxt
          end if
-
-         cur => nxt%next
       end do
 
 
       !нечетная фаза
       if (.not. associated(employees%next)) return
+      prev => employees
       cur => employees%next
       do while (associated(cur))
 
@@ -73,19 +86,14 @@ contains
          if(.not. associated(nxt)) exit
 
          if (Position_less(cur%position, nxt%position, positions_rank)) then
-            tmp_surname = cur%surname
-            tmp_position = cur%position
-
-            cur%surname = nxt%surname
-            cur%position = nxt%position
-
-            nxt%surname = tmp_surname
-            nxt%position = tmp_position
-
+            !обмен через ссылки, без копирования полей
+            call Swap_links(prev, employees, cur, nxt)
             swapped = .true.
+            prev => nxt
+         else
+            prev => cur
+            cur => nxt
          end if
-
-         cur => nxt%next
       end do
 
    end subroutine Sort_pass

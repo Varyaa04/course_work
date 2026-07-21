@@ -26,30 +26,31 @@ contains
       end if
    end function Position_less
 
+   !обмен местами узла node (A) и следующего за ним node%next (B) через ссылки,
+   subroutine Swap_adjacent_links(node)
+      type(employee), allocatable, intent(inout) :: node
+      type(employee), allocatable :: nodeA, nodeC
+
+      call move_alloc(node%next%next, nodeC)   !отцепляем остаток списка (C) от B
+      call move_alloc(node, nodeA)              !nodeA = A (вместе с A%next = B)
+      call move_alloc(nodeA%next, node)         !node = B
+      call move_alloc(nodeA, node%next)         !node%next = A
+      call move_alloc(nodeC, node%next%next)    !node%next%next = C (остаток списка)
+   end subroutine Swap_adjacent_links
+
    !чётная фаза
    recursive subroutine Odd_Phase(employees, positions_rank, swapped)
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical, intent(inout) :: swapped
-      
-      character(SURNAME_LEN, kind=CH_) :: tmp_surname
-      character(POSITION_LEN, kind=CH_) :: tmp_position
-      
+
       if (.not. allocated(employees)) return
       if (.not. allocated(employees%next)) return
       
       !сравниваем текущую пару
       if (Position_less(employees%position, employees%next%position, positions_rank)) then
- !через ссылки менять
-         tmp_surname = employees%surname
-         tmp_position = employees%position
-         
-         employees%surname = employees%next%surname
-         employees%position = employees%next%position
-         
-         employees%next%surname = tmp_surname
-         employees%next%position = tmp_position
-         
+         !обмен через ссылки (move_alloc), без копирования данных
+         call Swap_adjacent_links(employees)
          swapped = .true.
       end if
       
@@ -61,25 +62,15 @@ contains
       type(employee), allocatable, intent(inout) :: employees
       character(POSITION_LEN, kind=CH_), intent(in) :: positions_rank(:)
       logical, intent(inout) :: swapped
-      
-      character(SURNAME_LEN, kind=CH_) :: tmp_surname
-      character(POSITION_LEN, kind=CH_) :: tmp_position
-      
+
       if (.not. allocated(employees)) return
       if (.not. allocated(employees%next)) return
       if (.not. allocated(employees%next%next)) return
       
       !сравниваем пару 
       if (Position_less(employees%next%position, employees%next%next%position, positions_rank)) then
-         tmp_surname = employees%next%surname
-         tmp_position = employees%next%position
-         
-         employees%next%surname = employees%next%next%surname
-         employees%next%position = employees%next%next%position
-         
-         employees%next%next%surname = tmp_surname
-         employees%next%next%position = tmp_position
-         
+         !обмен через ссылки (move_alloc), без копирования данных
+         call Swap_adjacent_links(employees%next)
          swapped = .true.
       end if
       

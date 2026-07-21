@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:6356b8615894c7b0
-!need$ 6479358d410ec890 n order_io
-!need$ ea6dd147e57435bd n environment
+﻿!mod$ v1 sum:53fde7691dc0b10a
+!need$ 43c2de1e2afad801 n order_io
+!need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -114,6 +114,12 @@ character(15_4,4),intent(in)::pos_a
 character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
+end
+subroutine swap_links(prev,employees,cur,nxt)
+type(employee),intent(inout),pointer::prev
+type(employee),intent(inout),pointer::employees
+type(employee),intent(inout),pointer::cur
+type(employee),intent(inout),pointer::nxt
 end
 subroutine sort_pass(employees,positions_rank,swapped)
 type(employee),intent(inout),pointer::employees

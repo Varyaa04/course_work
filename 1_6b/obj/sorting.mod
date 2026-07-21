@@ -1,6 +1,6 @@
-﻿!mod$ v1 sum:f7373772f3fa9b9c
-!need$ dfb362f66a0598c0 n order_io
-!need$ ea6dd147e57435bd n environment
+﻿!mod$ v1 sum:a56187a9541debd3
+!need$ 7c87e3f198e350bd n order_io
+!need$ 5cbba2cdaa980ab0 n environment
 module sorting
 use environment,only:event_type
 use environment,only:notify_type
@@ -113,6 +113,9 @@ character(15_4,4),intent(in)::pos_a
 character(15_4,4),intent(in)::pos_b
 character(15_4,4),intent(in)::positions_rank(:)
 logical(4)::res
+end
+subroutine swap_adjacent_links(node)
+type(employee),allocatable,intent(inout)::node
 end
 recursive subroutine odd_phase(employees,positions_rank,swapped)
 type(employee),allocatable,intent(inout)::employees

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import random
 
-# Фиксируем seed для воспроизводимости
 random.seed(42)
 
 surnames_male = [
